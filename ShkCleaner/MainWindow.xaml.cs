@@ -689,7 +689,7 @@ public partial class MainWindow : Window
                         var миниатюра = PhotoManager.СоздатьМиниатюру(ф.ПутьКФайлу);
                         // Показываем миниатюру только если файл ещё в текущем списке
                         // (пользователь мог нажать "Обновить" или сменить папку)
-                        if (СеткаФото.ItemsSource is System.Collections.IEnumerable список && список.Contains(ф))
+                        if (СеткаФото.ItemsSource is IEnumerable<PhotoInfo> список && список.Contains(ф))
                             ф.Миниатюра = миниатюра;
                     }
                     catch (Exception ex)
