@@ -1,0 +1,546 @@
+<Window x:Class="ShkCleaner.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SHK CLEANER — очистка компьютера"
+        Width="1100" Height="750"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource ФонБраш}"
+        FontFamily="Segoe UI">
+
+    <!-- Общая сетка окна: слева панель навигации (240 px), справа содержимое -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ==================== БОКОВАЯ ПАНЕЛЬ НАВИГАЦИИ ==================== -->
+        <Border Grid.Column="0" Background="{DynamicResource ФонПанелиБраш}">
+            <DockPanel>
+
+                <!-- Логотип сверху: PNG-иконка приложения.
+                     Картинка загружается КОДОМ из Resources (см. MainWindow.xaml.cs):
+                     чтобы заменить логотип - перезапишите файл Resources/appicon_256.png
+                     своей картинкой (PNG, квадратная, 256x256 или больше) и пересоберите. -->
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="18,22,18,18">
+                    <Border Background="{DynamicResource ФонКарточкиБраш}" CornerRadius="10"
+                            BorderBrush="{DynamicResource ГраницаБраш}" BorderThickness="1"
+                            Width="42" Height="42">
+                        <Image x:Name="ЛоготипКартинка" Width="34" Height="34"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="SHK CLEANER" FontSize="17" FontWeight="Bold"
+                                   Foreground="{DynamicResource ТекстБраш}"/>
+                        <TextBlock Text="v1.0.0" FontSize="11"
+                                   Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Кнопка-переключатель языка внизу панели -->
+                <TextBlock DockPanel.Dock="Bottom" x:Name="ТекстАдминСтатус"
+                           Text="✔ Права администратора получены"
+                           FontSize="11" TextWrapping="Wrap"
+                           Foreground="#4CAF50" Margin="18,0,18,16"/>
+
+                <!-- 5 кнопок навигации (RadioButtons в одной группе - ведёт себя как вкладки) -->
+                <StackPanel>
+                    <RadioButton x:Name="НавигацияОчистка" Style="{StaticResource НавигацияКнопкаСтиль}"
+                                 GroupName="Разделы" IsChecked="True" Tag="NavClean"
+                                 Checked="ПереключитьРаздел"/>
+                    <RadioButton x:Name="НавигацияПрограммы" Style="{StaticResource НавигацияКнопкаСтиль}"
+                                 GroupName="Разделы" Tag="NavPrograms"
+                                 Checked="ПереключитьРаздел"/>
+                    <RadioButton x:Name="НавигацияФото" Style="{StaticResource НавигацияКнопкаСтиль}"
+                                 GroupName="Разделы" Tag="NavPhotos"
+                                 Checked="ПереключитьРаздел"/>
+                    <RadioButton x:Name="НавигацияНастройки" Style="{StaticResource НавигацияКнопкаСтиль}"
+                                 GroupName="Разделы" Tag="NavSettings"
+                                 Checked="ПереключитьРаздел"/>
+                    <RadioButton x:Name="НавигацияОПрограмме" Style="{StaticResource НавигацияКнопкаСтиль}"
+                                 GroupName="Разделы" Tag="NavAbout"
+                                 Checked="ПереключитьРаздел"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ==================== ОСНОВНАЯ ОБЛАСТЬ (разделы) ==================== -->
+        <Grid Grid.Column="1" Margin="28,22">
+
+            <!-- ========== РАЗДЕЛ 1: ОЧИСТКА СИСТЕМЫ ========== -->
+            <Grid x:Name="РазделОчистка">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>   <!-- заголовок -->
+                    <RowDefinition Height="Auto"/>   <!-- карточки статистики -->
+                    <RowDefinition Height="Auto"/>   <!-- кнопки + прогресс -->
+                    <RowDefinition Height="*"/>      <!-- чекбоксы категорий -->
+                    <RowDefinition Height="Auto"/>   <!-- результат -->
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                    <TextBlock Tag="CleanHeader" Style="{StaticResource ЗаголовокСтраницы}"/>
+                    <TextBlock Tag="CleanSubHeader" Style="{StaticResource ПодзаголовокСтраницы}" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Карточки статистики: показываются после сканирования/очистки -->
+                <UniformGrid Grid.Row="1" Rows="1" Columns="4" Margin="0,0,0,12">
+                    <Border Style="{StaticResource СтатистикаКарточка}">
+                        <StackPanel>
+                            <TextBlock x:Name="СтатМусорЗначение" Text="—" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource АкцентБраш}"/>
+                            <TextBlock Tag="StatTotalJunk" FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource СтатистикаКарточка}">
+                        <StackPanel>
+                            <TextBlock x:Name="СтатФайлыЗначение" Text="—" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ТекстБраш}"/>
+                            <TextBlock Tag="StatFilesFound" FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource СтатистикаКарточка}">
+                        <StackPanel>
+                            <TextBlock x:Name="СтатКатегорииЗначение" Text="—" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ТекстБраш}"/>
+                            <TextBlock Tag="StatCategories" FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource СтатистикаКарточка}" Margin="0">
+                        <StackPanel>
+                            <TextBlock x:Name="СтатОсвобожденоЗначение" Text="—" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ЗелёныйБраш}"/>
+                            <TextBlock Tag="StatFreed" FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <!-- Кнопки и прогресс-бар -->
+                <StackPanel Grid.Row="2" Margin="0,0,0,12">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="КнопкаСканировать" Style="{StaticResource КнопкаСтиль}"
+                                Tag="ScanButton" Click="Сканировать_Click" MinWidth="150"/>
+                        <Button x:Name="КнопкаОчистить" Style="{StaticResource КнопкаОпаснаяСтиль}"
+                                Tag="CleanButton" Click="Очистить_Click" MinWidth="150" Margin="12,0,0,0"/>
+                        <Button x:Name="КнопкаВыбратьВсеКатегории" Style="{StaticResource КнопкаСераяСтиль}"
+                                Tag="SelectAllCats" Click="ВыбратьВсеКатегории_Click" Margin="12,0,0,0"/>
+                    </StackPanel>
+
+                    <ProgressBar x:Name="ПрогрессОчистки" Minimum="0" Maximum="100" Value="0"
+                                 Height="10" Margin="0,14,0,4" Visibility="Collapsed"/>
+                    <TextBlock x:Name="ТекстПрогресса" Text="" FontSize="13"
+                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                </StackPanel>
+
+                <!-- Список категорий очистки (генерируется кодом из ObservableCollection) -->
+                <Border Grid.Row="3" Style="{StaticResource КарточкаСтиль}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Tag="WhatToClean" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="СписокКатегорий">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,3">
+                                            <!-- Чекбокс категории: Отмечено <-> свойство модели -->
+                                            <CheckBox Content="{Binding Название}" IsChecked="{Binding Отмечено}"/>
+                                            <!-- Строка "Найдено файлов: N • Размер: X" -->
+                                            <TextBlock Text="{Binding Инфо}" FontSize="12" Margin="24,0,0,0"
+                                                       Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+
+                <!-- Большие файлы из папки Загрузки -->
+                <StackPanel Grid.Row="4" Margin="0,12,0,0">
+                    <Expander x:Name="РаскрышкаЗагрузки" Tag="DownloadsList" IsExpanded="False">
+                        <ScrollViewer MaxHeight="160" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="СписокБольшихФайлов">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontSize="13" Margin="0,2">
+                                            <Run Text="📄 "/><Run Text="{Binding Имя}"/><Run Text="  —  "/><Run Text="{Binding РазмерЧеловек}" FontWeight="Bold"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Expander>
+                    <!-- Итог: "Освобождено: X MB/GB" -->
+                    <TextBlock x:Name="ТекстРезультатаОчистки" Text="" FontSize="18" FontWeight="Bold"
+                               Foreground="#4CAF50" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ========== РАЗДЕЛ 2: УДАЛЕНИЕ ПРОГРАММ ========== -->
+            <Grid x:Name="РазделПрограммы" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                    <TextBlock Tag="ProgramsHeader" Style="{StaticResource ЗаголовокСтраницы}"/>
+                    <TextBlock Tag="ProgramsSubHeader" Style="{StaticResource ПодзаголовокСтраницы}" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Поиск + кнопки -->
+                <Grid Grid.Row="1" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" x:Name="ПоискПрограмм" Tag="SearchPlaceholder"
+                             TextChanged="ПоискПрограмм_TextChanged"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0,0,0">
+                        <Button x:Name="КнопкаОбновитьСписок" Style="{StaticResource КнопкаСераяСтиль}"
+                                Tag="RefreshList" Click="ОбновитьСписок_Click"/>
+                        <Button x:Name="КнопкаУдалитьПрограмму" Style="{StaticResource КнопкаОпаснаяСтиль}"
+                                Tag="UninstallButton" Click="УдалитьПрограмму_Click" Margin="12,0,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Таблица программ (слева) + предпросмотр выбранной программы (справа) -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource КарточкаСтиль}" Padding="0">
+                        <DataGrid x:Name="ТаблицаПрограмм" AutoGenerateColumns="False"
+                                  CanUserAddRows="False" IsReadOnly="True"
+                                  SelectionMode="Single" HeadersVisibility="Column"
+                                  SelectionChanged="ТаблицаПрограмм_SelectionChanged"
+                                  MouseDoubleClick="УдалитьПрограмму_Click">
+                            <DataGrid.Columns>
+                                <!-- Колонка со ЗНАЧКОМ программы: реальная иконка из файла
+                                     или красивая цветная заглушка с первой буквой названия -->
+                                <DataGridTemplateColumn Width="48">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid Width="32" Height="32">
+                                                <!-- Заглушка: градиентный кружок с буквой -->
+                                                <Border CornerRadius="8"
+                                                        Visibility="{Binding ЕстьИконка, Converter={StaticResource InvBool}}">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                            <GradientStop Color="#007ACC" Offset="0"/>
+                                                            <GradientStop Color="#4CAF50" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                    <TextBlock Text="{Binding ПерваяБуква}" Foreground="White"
+                                                               FontSize="16" FontWeight="Bold"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <!-- Настоящая иконка программы -->
+                                                <Image Source="{Binding Иконка}" Stretch="Uniform"
+                                                       Visibility="{Binding ЕстьИконка, Converter={StaticResource BoolToVis}}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding Имя}" Width="3*">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColName"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Издатель}" Width="2*">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColPublisher"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Версия}" Width="*">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColVersion"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding ДатаУстановкиСтрока}" Width="Auto">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColDate"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding РазмерЧеловек}" Width="Auto">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColSize"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <!-- Панель предпросмотра программы: большая иконка + сведения -->
+                    <Border x:Name="ПанельПрограммы" Grid.Column="1" Style="{StaticResource КарточкаСтиль}" Margin="12,0,0,0">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Tag="ProgramPreview" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                            <!-- Нижняя часть: команда удаления -->
+                            <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                                <TextBlock Tag="UninstallCommand" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                <TextBlock x:Name="ПредпросмотрКоманда" Text="" FontSize="11" TextWrapping="Wrap"
+                                           MaxHeight="54" Foreground="{DynamicResource ТекстВторичныйБраш}"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <!-- Основная часть: иконка 64x64 + подписи -->
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <Grid Width="64" Height="64" HorizontalAlignment="Center" Margin="0,4,0,10">
+                                        <!-- Заглушка с буквой названия (как в таблице) -->
+                                        <Border x:Name="ЗаглушкаИконкиПрограммы" CornerRadius="14"
+                                                Background="{DynamicResource ЛоготипГрадиент}">
+                                            <TextBlock x:Name="ЗаглушкаИконкиБуква" Text="?" Foreground="White"
+                                                       FontSize="30" FontWeight="Bold"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <!-- Настоящая увеличенная иконка программы -->
+                                        <Image x:Name="ПредпросмотрИконка" Stretch="Uniform"/>
+                                    </Grid>
+                                    <TextBlock x:Name="ПредпросмотрИмя" Text="" FontWeight="Bold" FontSize="15"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                    <TextBlock x:Name="ПредпросмотрИздатель" Tag="PublisherLabel" FontSize="12" Margin="0,8,0,0"
+                                               TextWrapping="Wrap" Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                    <TextBlock x:Name="ПредпросмотрВерсия" Tag="VersionLabel" FontSize="12" Margin="0,3,0,0"
+                                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                    <TextBlock x:Name="ПредпросмотрДата" Tag="InstallDateLabel" FontSize="12" Margin="0,3,0,0"
+                                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                    <TextBlock x:Name="ПредпросмотрРазмер" Tag="SizeLabel" FontSize="12" Margin="0,3,0,0"
+                                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                    <!-- Зелёный чип "Тихое удаление доступно" -->
+                                    <Border x:Name="ЧипТихоеУдаление" Style="{StaticResource ЧипСтиль}"
+                                            HorizontalAlignment="Center" Margin="0,10,0,0" Visibility="Collapsed">
+                                        <TextBlock Text="✔" Foreground="{DynamicResource ЗелёныйБраш}" FontSize="11"/>
+                                    </Border>
+                                    <TextBlock x:Name="ПредпросмотрПодсказкаПрограмм" Tag="ProgramHint" TextWrapping="Wrap"
+                                               FontSize="12" TextAlignment="Center" Margin="0,8,0,0"
+                                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+
+                <TextBlock Grid.Row="3" x:Name="ТекстСтатусПрограмм" Text="" Margin="0,10,0,0"
+                           Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+            </Grid>
+
+            <!-- ========== РАЗДЕЛ 3: УПРАВЛЕНИЕ ФОТО ========== -->
+            <Grid x:Name="РазделФото" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Tag="PhotosHeader" Style="{StaticResource ЗаголовокСтраницы}"/>
+                    <TextBlock Tag="PhotosSubHeader" Style="{StaticResource ПодзаголовокСтраницы}" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Панель управления фото -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                    <Button x:Name="КнопкаВыбратьВсеФото" Style="{StaticResource КнопкаСераяСтиль}"
+                            Tag="SelectAll" Click="ВыбратьВсеФото_Click"/>
+                    <Button x:Name="КнопкаСнятьВыделение" Style="{StaticResource КнопкаСераяСтиль}"
+                            Tag="DeselectAll" Click="СнятьВыделение_Click" Margin="10,0,0,0"/>
+                    <Button x:Name="КнопкаУдалитьФото" Style="{StaticResource КнопкаОпаснаяСтиль}"
+                            Tag="DeleteSelected" Click="УдалитьВыбранныеФото_Click" Margin="10,0,0,0"/>
+                    <Button x:Name="КнопкаОбновитьФото" Style="{StaticResource КнопкаСераяСтиль}"
+                            Tag="Update" Click="ОбновитьФото_Click" Margin="10,0,0,0"/>
+                    <Button x:Name="КнопкаВыбратьПапку" Style="{StaticResource КнопкаСтиль}"
+                            Tag="ChooseFolder" Click="ВыбратьПапку_Click" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <!-- Сетка миниатюр слева + предпросмотр справа -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="330"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource КарточкаСтиль}" Padding="8">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <Grid>
+                                <TextBlock x:Name="ТекстНетФото" Tag="NoPhotos" Visibility="Collapsed"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                <ItemsControl x:Name="СеткаФото" PreviewMouseLeftButtonDown="СеткаFoto_PreviewLeftDown">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <!-- WrapPanel = автоматическая сетка с переносом по ширине -->
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <!-- Карточка одного фото: миниатюра 150x150 + подписи + чекбокс -->
+                                            <Border Width="176" Margin="8" Padding="8" CornerRadius="8"
+                                                    Background="{DynamicResource ФонКарточкиБраш}"
+                                                    BorderBrush="{DynamicResource ГраницаБраш}" BorderThickness="1">
+                                                <StackPanel>
+                                                    <Grid Width="150" Height="150" HorizontalAlignment="Center">
+                                                        <!-- Заглушка, пока миниатюра грузится -->
+                                                        <Border Background="#3A3A3D" CornerRadius="6"
+                                                                Visibility="{Binding ЕстьМиниатюра, Converter={StaticResource InvBool}}">
+                                                            <TextBlock Text="🖼️" FontSize="34" Opacity="0.4"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <!-- Сама миниатюра (закругление через Border, т.к. у Image нет CornerRadius) -->
+                                                        <Border CornerRadius="6" ClipToBounds="True">
+                                                            <Image Source="{Binding Миниатюра}" Stretch="Uniform"/>
+                                                        </Border>
+                                                        <!-- Чекбокс выбора - поверх угла карточки -->
+                                                        <CheckBox IsChecked="{Binding Выбрано}"
+                                                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                                Background="Transparent"/>
+                                                    </Grid>
+                                                    <TextBlock Text="{Binding ИмяФайла}" FontSize="12" TextTrimming="CharacterEllipsis"
+                                                               Margin="0,6,0,0" ToolTip="{Binding ИмяФайла}"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                        <TextBlock Text="{Binding РазмерЧеловек}" FontSize="11"
+                                                                   Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                                        <TextBlock Text=" • " FontSize="11"
+                                                                   Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                                        <TextBlock Text="{Binding Разрешение}" FontSize="11"
+                                                                   Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- Панель предпросмотра -->
+                    <Border Grid.Column="1" Style="{StaticResource КарточкаСтиль}" Margin="12,0,0,0">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Tag="PreviewTitle" Text="Предпросмотр" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                                <TextBlock x:Name="ПредпросмотрФайл" Tag="FileName" TextWrapping="Wrap" FontSize="12"/>
+                                <TextBlock x:Name="ФотоПредпросмотрРазмер" Tag="FileSize" FontSize="12" Margin="0,3,0,0"/>
+                                <TextBlock x:Name="ПредпросмотрРазрешение" Tag="FileResolution" FontSize="12" Margin="0,3,0,0"/>
+                                <TextBlock x:Name="ФотоПредпросмотрДата" Tag="FileDate" FontSize="12" Margin="0,3,0,0"/>
+                                <TextBlock x:Name="ПредпросмотрПапка" Tag="FolderPath" TextWrapping="Wrap" FontSize="11" Margin="0,3,0,0"
+                                           Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                            </StackPanel>
+                            <Grid>
+                                <TextBlock x:Name="ПредпросмотрПодсказка" Tag="PreviewHint" TextWrapping="Wrap"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                <Image x:Name="КартинкаПредпросмотра" Stretch="Uniform"/>
+                            </Grid>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <!-- ========== РАЗДЕЛ 4: НАСТРОЙКИ ========== -->
+            <Grid x:Name="РазделНастройки" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                    <TextBlock Tag="SettingsHeader" Style="{StaticResource ЗаголовокСтраницы}"/>
+                    <TextBlock Tag="SettingsSubHeader" Style="{StaticResource ПодзаголовокСтраницы}" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- Автозапуск -->
+                        <Border Style="{StaticResource КарточкаСтиль}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Tag="GroupStartup" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <CheckBox x:Name="НастройкаАвтозапуск" Tag="StartWithWindows"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Язык -->
+                        <Border Style="{StaticResource КарточкаСтиль}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Tag="GroupLanguage" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <RadioButton x:Name="ЯзыкRu" GroupName="Язык" Tag="LangRu" Checked="Язык_Изменён"/>
+                                <RadioButton x:Name="ЯзыкEn" GroupName="Язык" Tag="LangEn" Checked="Язык_Изменён"/>
+                                <RadioButton x:Name="ЯзыкTr" GroupName="Язык" Tag="LangTr" Checked="Язык_Изменён"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Тема -->
+                        <Border Style="{StaticResource КарточкаСтиль}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Tag="GroupTheme" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <RadioButton x:Name="ТемаDark" GroupName="Тема" Tag="ThemeDark" Checked="Тема_Изменена"/>
+                                <RadioButton x:Name="ТемаLight" GroupName="Тема" Tag="ThemeLight" Checked="Тема_Изменена"/>
+                                <RadioButton x:Name="ТемаBlue" GroupName="Тема" Tag="ThemeBlue" Checked="Тема_Изменена"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Дополнительные настройки -->
+                        <Border Style="{StaticResource КарточкаСтиль}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Tag="GroupExtra" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <CheckBox x:Name="НастройкаПодтверждения" Tag="ShowConfirmations"/>
+                                <CheckBox x:Name="НастройкаТочкаВосстановления" Tag="CreateRestorePoint"/>
+                                <CheckBox x:Name="НастройкаОчисткаКорзины" Tag="EmptyRecycleAuto"/>
+                                <!-- Валидируемое числовое поле -->
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <TextBlock x:Name="ТекстМинРазмер" Tag="MinDownloadSize" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="ПолеМинРазмер" Width="90" Margin="10,0,0,0"
+                                             PreviewTextInput="ТолькоЦифры"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Кнопки внизу -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,14,0,0">
+                    <Button x:Name="КнопкаСохранить" Style="{StaticResource КнопкаСтиль}"
+                            Tag="SaveSettings" Click="СохранитьНастройки_Click" MinWidth="190"/>
+                    <Button x:Name="КнопкаСбросить" Style="{StaticResource КнопкаСераяСтиль}"
+                            Tag="ResetSettings" Click="СброситьНастройки_Click" Margin="12,0,0,0"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ========== РАЗДЕЛ 5: О ПРОГРАММЕ ========== -->
+            <Grid x:Name="РазделОПрограмме" Visibility="Collapsed">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <!-- Логотип -->
+                    <Border Background="{DynamicResource АкцентБраш}" CornerRadius="24"
+                            Width="120" Height="120" HorizontalAlignment="Center">
+                        <TextBlock Text="🧹" FontSize="60" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <TextBlock Tag="AppName" FontSize="34" FontWeight="Bold"
+                               HorizontalAlignment="Center" Margin="0,20,0,4"/>
+                    <TextBlock Tag="AppVersion" HorizontalAlignment="Center" FontSize="15"
+                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                    <TextBlock Tag="AppDescription" TextWrapping="Wrap" TextAlignment="Center"
+                               MaxWidth="480" HorizontalAlignment="Center" FontSize="14" Margin="0,16,0,8"/>
+
+                    <!-- Ссылка на GitHub (заглушка) -->
+                    <TextBlock HorizontalAlignment="Center" Cursor="Hand" Margin="0,4,0,20">
+                        <Hyperlink x:Name="СсылкаGitHub"
+                                   Foreground="{DynamicResource АкцентБраш}"
+                                   Click="GitHub_Click"><Run Text="🔗 GitHub: github.com/shk/cleaner"/></Hyperlink>
+                    </TextBlock>
+
+                    <Button x:Name="КнопкаОбновления" Style="{StaticResource КнопкаСтиль}"
+                            Tag="CheckUpdates" Click="ПроверитьОбновления_Click"
+                            HorizontalAlignment="Center" MinWidth="220"/>
+
+                    <!-- Кнопка создания EXE-ярлыка на Рабочем столе -->
+                    <Button x:Name="КнопкаЯрлык" Content="📌 Создать .exe ярлык на рабочем столе"
+                            Style="{StaticResource КнопкаСтиль}" Click="СоздатьЯрлык_Click"
+                            HorizontalAlignment="Center" MinWidth="220" Margin="0,10,0,0"/>
+
+                    <TextBlock Tag="Copyright" Text="© 2026 SHK. Все права защищены." HorizontalAlignment="Center" Margin="0,26,0,0" FontSize="12"
+                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

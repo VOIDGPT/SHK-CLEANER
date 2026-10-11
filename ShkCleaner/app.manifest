@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity version="1.0.0.0" name="ShkCleaner.app"/>
+
+  <!--
+    ВАЖНОЕ РЕШЕНИЕ: используется level="asInvoker", а НЕ "requireAdministrator".
+
+    Почему: при requireAdministrator Visual Studio (запущенная без прав администратора)
+    НЕ МОЖЕТ запустить сборку для отладки и выдаёт ошибку "Access is denied".
+    Это известное ограничение Windows: процесс без прав не может запустить
+    на прямую отладку процесс с правами.
+
+    Вместо манифеста приложение само повышает привилегии при ЗАПУСКЕ:
+    если прав администратора нет, оно перезапускает себя через verb "runas"
+    (появляется стандартное окно UAC). Права администратора по-прежнему
+    обязательны для работы - просто запрашиваются кодом (см. App.xaml.cs),
+    а не манифестом. Для ярлыка на рабочем столе можно так же включить
+    "Запуск от имени администратора" во вкладке "Совместимость".
+  -->
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- Windows 10 и Windows 11 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+    </application>
+  </compatibility>
+
+  <!-- Включаем визуальные стили (современный облик общих контролов Windows) -->
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+    </windowsSettings>
+  </application>
+</assembly>
