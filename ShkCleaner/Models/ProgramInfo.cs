@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace ShxClean.Models;
+namespace ShkCleaner.Models;
 
 /// <summary>
 /// Модель данных "Установленная программа".

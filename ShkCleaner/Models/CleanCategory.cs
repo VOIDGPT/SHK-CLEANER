@@ -1,4 +1,4 @@
-namespace ShxClean.Models;
+namespace ShkCleaner.Models;
 
 /// <summary>
 /// Модель данных "Категория очистки".

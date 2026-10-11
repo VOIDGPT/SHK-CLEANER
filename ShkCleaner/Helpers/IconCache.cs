@@ -1,7 +1,7 @@
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace ShxClean.Helpers;
+namespace ShkCleaner.Helpers;
 
 /// <summary>
 /// Кэш извлечённых иконок программ.

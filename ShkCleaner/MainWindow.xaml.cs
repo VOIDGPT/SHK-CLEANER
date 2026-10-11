@@ -7,10 +7,10 @@ using System.Windows.Documents; // Hyperlink (ссылка на GitHub на ст
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using ShxClean.Helpers;
-using ShxClean.Models;
+using ShkCleaner.Helpers;
+using ShkCleaner.Models;
 
-namespace ShxClean;
+namespace ShkCleaner;
 
 /// <summary>
 /// Логика главного окна: переключение разделов и все обработчики событий.
@@ -55,7 +55,7 @@ public partial class MainWindow : Window
             long лучшийРазмер = -1;
             foreach (string имя in сборка.GetManifestResourceNames())
             {
-                // Внутренние имена ресурсов выглядят так: ShxClean.Resources.appicon_256.png
+                // Внутренние имена ресурсов выглядят так: ShkCleaner.Resources.appicon_256.png
                 if (!имя.Contains(".Resources.") || !имя.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) continue;
                 using var тестовыйПоток = сборка.GetManifestResourceStream(имя);
                 if (тестовыйПоток is null) continue;

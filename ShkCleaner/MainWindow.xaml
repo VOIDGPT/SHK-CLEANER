@@ -1,7 +1,7 @@
-<Window x:Class="ShxClean.MainWindow"
+<Window x:Class="ShkCleaner.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="SHX Clean — очистка компьютера"
+        Title="SHK CLEANER — очистка компьютера"
         Width="1100" Height="750"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource ФонБраш}"
@@ -30,7 +30,7 @@
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="SHX Clean" FontSize="17" FontWeight="Bold"
+                        <TextBlock Text="SHK CLEANER" FontSize="17" FontWeight="Bold"
                                    Foreground="{DynamicResource ТекстБраш}"/>
                         <TextBlock Text="v1.0.0" FontSize="11"
                                    Foreground="{DynamicResource ТекстВторичныйБраш}"/>
@@ -525,14 +525,14 @@
                     <TextBlock HorizontalAlignment="Center" Cursor="Hand" Margin="0,4,0,20">
                         <Hyperlink x:Name="СсылкаGitHub"
                                    Foreground="{DynamicResource АкцентБраш}"
-                                   Click="GitHub_Click"><Run Text="🔗 GitHub: github.com/shx/clean"/></Hyperlink>
+                                   Click="GitHub_Click"><Run Text="🔗 GitHub: github.com/shk/cleaner"/></Hyperlink>
                     </TextBlock>
 
                     <Button x:Name="КнопкаОбновления" Style="{StaticResource КнопкаСтиль}"
                             Tag="CheckUpdates" Click="ПроверитьОбновления_Click"
                             HorizontalAlignment="Center" MinWidth="220"/>
 
-                    <TextBlock Tag="Copyright" Text="© 2026 SHX. Все права защищены." HorizontalAlignment="Center" Margin="0,26,0,0" FontSize="12"
+                    <TextBlock Tag="Copyright" Text="© 2026 SHK. Все права защищены." HorizontalAlignment="Center" Margin="0,26,0,0" FontSize="12"
                                Foreground="{DynamicResource ТекстВторичныйБраш}"/>
                 </StackPanel>
             </Grid>

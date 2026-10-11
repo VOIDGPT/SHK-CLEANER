@@ -1,4 +1,4 @@
-namespace ShxClean;
+namespace ShkCleaner;
 
 /// <summary>
 /// Простая система локализации: словарь ключ -> перевод для трёх языков.
@@ -15,7 +15,7 @@ public static class Loc
     private static readonly Dictionary<string, (string ru, string en, string tr)> Переводы = new()
     {
         // ---- Навигация ----
-        ["NavTitle"] = ("SHX Clean", "SHX Clean", "SHX Clean"),
+        ["NavTitle"] = ("SHK CLEANER", "SHK CLEANER", "SHK CLEANER"),
         ["NavClean"] = ("🧹 Очистка системы", "🧹 System Cleanup", "🧹 Sistem Temizliği"),
         ["NavPrograms"] = ("🗑️ Удаление программ", "🗑️ Uninstall Programs", "🗑️ Program Kaldır"),
         ["NavPhotos"] = ("🖼️ Управление фото", "🖼️ Photo Manager", "🖼️ Fotoğraf Yönetimi"),
@@ -129,14 +129,14 @@ public static class Loc
 
         // ---- О программе ----
         ["AboutHeader"] = ("О программе", "About", "Hakkında"),
-        ["AppName"] = ("SHX Clean", "SHX Clean", "SHX Clean"),
+        ["AppName"] = ("SHK CLEANER", "SHK CLEANER", "SHK CLEANER"),
         ["AppVersion"] = ("Версия: 1.0.0", "Version: 1.0.0", "Sürüm: 1.0.0"),
         ["AppDescription"] = ("Программа для очистки вашего компьютера от временных файлов и ненужных программ.",
                               "An application to clean your computer from temporary files and unwanted programs.",
                               "Bilgisayarınızı geçici dosyalardan ve gereksiz programlardan temizleyen uygulama."),
-        ["GitHubLink"] = ("🔗 GitHub: github.com/shx/clean", "🔗 GitHub: github.com/shx/clean", "🔗 GitHub: github.com/shx/clean"),
+        ["GitHubLink"] = ("🔗 GitHub: github.com/shk/cleaner", "🔗 GitHub: github.com/shk/cleaner", "🔗 GitHub: github.com/shk/cleaner"),
         ["CheckUpdates"] = ("Проверить обновления", "Check for updates", "Güncellemeleri kontrol et"),
-        ["Copyright"] = ("© 2026 SHX. Все права защищены.", "© 2026 SHX. All rights reserved.", "© 2026 SHX. Tüm hakları saklıdır."),
+        ["Copyright"] = ("© 2026 SHK. Все права защищены.", "© 2026 SHK. All rights reserved.", "© 2026 SHK. Tüm hakları saklıdır."),
         ["NoUpdates"] = ("У вас установлена последняя версия (1.0.0).", "You have the latest version (1.0.0).", "En son sürüme sahipsiniz (1.0.0)."),
 
         // ---- Новые фичи: карточки статистики, предпросмотр программ ----

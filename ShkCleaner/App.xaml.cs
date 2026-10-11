@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Windows;
-using ShxClean.Helpers;
+using ShkCleaner.Helpers;
 
-namespace ShxClean;
+namespace ShkCleaner;
 
 /// <summary>
 /// Точка входа приложения. Здесь мы:
@@ -24,7 +24,7 @@ public partial class App : Application
         {
             MessageBox.Show(
                 "Произошла непредвиденная ошибка:\n\n" + args.Exception.Message,
-                "SHX Clean — ошибка",
+                "SHK CLEANER — ошибка",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             args.Handled = true; // не даём приложению упасть
@@ -33,7 +33,7 @@ public partial class App : Application
         {
             MessageBox.Show(
                 "Критическая ошибка:\n\n" + args.ExceptionObject,
-                "SHX Clean — ошибка",
+                "SHK CLEANER — ошибка",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         };
@@ -41,12 +41,12 @@ public partial class App : Application
         // ---------- Шаг 1. Проверка прав администратора ----------
         if (!ЗапущенКакАдминистратор())
         {
-            // Аргумент --shikdik-restart защита от бесконечного цикла перезапусков
+            // Аргумент --shk-restart защита от бесконечного цикла перезапусков
             // (например, если пользователь в окне UAC нажал "Нет").
-            bool этоПерезапуск = e.Args.Contains("--shikdik-restart");
+            bool этоПерезапуск = e.Args.Contains("--shk-restart");
 
             var ответ = MessageBox.Show(
-                "SHX Clean требует прав администратора,\n" +
+                "SHK CLEANER требует прав администратора,\n" +
                 "чтобы очищать системные папки и корзину.\n\n" +
                 "Нажмите \"OK\" - программа перезапустится и запросит права (UAC).\n" +
                 "Нажмите \"Отмена\" - программа продолжит работу в ограниченном режиме.",
@@ -61,8 +61,8 @@ public partial class App : Application
                     // Перезапускаем свою exe-шку с повышенными правами (появит окно UAC)
                     var startInfo = new ProcessStartInfo
                     {
-                        FileName = Environment.ProcessPath ?? "SHX Clean.exe",
-                        Arguments = "--shikdik-restart",
+                        FileName = Environment.ProcessPath ?? "ShkCleaner.exe",
+                        Arguments = "--shk-restart",
                         Verb = "runas",              // ключевое слово: запросить права администратора
                         UseShellExecute = true      // verb runas работает только так
                     };

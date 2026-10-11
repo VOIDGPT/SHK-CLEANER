@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace ShxClean.Models;
+namespace ShkCleaner.Models;
 
 /// <summary>
 /// Класс настроек приложения. Сохраняется в файл appsettings.json

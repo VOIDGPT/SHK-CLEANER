@@ -11,13 +11,20 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <!-- Манифест с требованием прав администратора -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <!-- Информация о сборке (версия отображается на странице "О программе") -->
-    <AssemblyName>SHX Clean</AssemblyName>
-    <RootNamespace>ShxClean</RootNamespace>
+    <!-- Информация о сборке (версия отображается на странице "О программе").
+         ВАЖНО: официальное название программы - SHK CLEANER,
+         exe-файл будет называться ShkCleaner.exe -->
+    <AssemblyName>ShkCleaner</AssemblyName>
+    <RootNamespace>ShkCleaner</RootNamespace>
     <Version>1.0.0</Version>
-    <Authors>SHX</Authors>
-    <Product>SHX Clean</Product>
+    <Authors>SHK</Authors>
+    <Product>SHK CLEANER</Product>
     </PropertyGroup>
+
+  <ItemGroup>
+    <!-- System.Management нужен для раздела "Анализ диска" (SMART-данные через WMI) -->
+    <PackageReference Include="System.Management" Version="9.0.8" />
+  </ItemGroup>
 
   <!-- Иконка самого .exe файла в проводнике Windows (это свойство, НЕ элемент ItemGroup) -->
   <PropertyGroup>

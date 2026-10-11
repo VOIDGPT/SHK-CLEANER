@@ -3,9 +3,9 @@ using System.IO;
 using System.Security;
 using System.Globalization;
 using Microsoft.Win32;
-using ShxClean.Models;
+using ShkCleaner.Models;
 
-namespace ShxClean.Helpers;
+namespace ShkCleaner.Helpers;
 
 /// <summary>
 /// Класс для чтения списка установленных программ из реестра Windows

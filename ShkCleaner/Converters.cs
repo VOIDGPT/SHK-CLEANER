@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace ShxClean;
+namespace ShkCleaner;
 
 /// <summary>
 /// Конвертер для XAML: превращает bool в Visibility.

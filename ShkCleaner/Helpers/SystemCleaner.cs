@@ -1,7 +1,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace ShxClean.Helpers;
+namespace ShkCleaner.Helpers;
 
 /// <summary>
 /// Класс для очистки системы от временных файлов и мусора.
