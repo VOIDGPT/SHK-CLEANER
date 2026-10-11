@@ -3,14 +3,24 @@
   <assemblyIdentity version="1.0.0.0" name="ShikdikClean.app"/>
 
   <!--
-    Требование прав администратора при запуске.
-    level="requireAdministrator" - Windows всегда будет показывать окно UAC.
-    Без этих прав невозможно очистить системные папки (C:\Windows\Temp, Prefetch) и Корзину.
+    ВАЖНОЕ РЕШЕНИЕ: используется level="asInvoker", а НЕ "requireAdministrator".
+
+    Почему: при requireAdministrator Visual Studio (запущенная без прав администратора)
+    НЕ МОЖЕТ запустить сборку для отладки и выдаёт ошибку "Access is denied".
+    Это известное ограничение Windows: процесс без прав не может запустить
+    на прямую отладку процесс с правами.
+
+    Вместо манифеста приложение само повышает привилегии при ЗАПУСКЕ:
+    если прав администратора нет, оно перезапускает себя через verb "runas"
+    (появляется стандартное окно UAC). Права администратора по-прежнему
+    обязательны для работы - просто запрашиваются кодом (см. App.xaml.cs),
+    а не манифестом. Для ярлыка на рабочем столе можно так же включить
+    "Запуск от имени администратора" во вкладке "Совместимость".
   -->
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
     </security>
   </trustInfo>
