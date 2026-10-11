@@ -12,9 +12,14 @@ namespace ShkCleaner.Helpers;
 /// </summary>
 public static class SettingsManager
 {
-    /// <summary>Путь к файлу настроек - рядом с исполняемым файлом программы.</summary>
+    /// <summary>
+    /// Путь к файлу настроек: %AppData%\ShkCleaner\appsettings.json.
+    /// Храним настройки в папке пользователя (а не рядом с .exe), потому что
+    /// программа запускается с правами администратора и может лежать в
+    /// защищённой системной папке, куда обычная запись запрещена.
+    /// </summary>
     private static string ПутьКФайлуНастроек =>
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+        Path.Combine(ShkCleanerPaths.ПапкаДанных, "appsettings.json");
 
     // Словарь для записи JSON с русскими именами свойств и красивым отступом.
     private static readonly JsonSerializerOptions параметрыJson = new()
@@ -92,6 +97,63 @@ public static class SettingsManager
                 File.Delete(путьЯрлыка);
             }
             return null;
+        }
+        catch (Exception e)
+        {
+            return Loc.Get("AutostartError") + " " + e.Message;
+        }
+    }
+
+    /// <summary>
+    /// Создаёт обычный EXE-файл ярлык "SHK CLEANER.exe" на Рабочем столе.
+    /// При двойном клике по такому файлу Windows запускает нашу программу
+    /// и автоматически показывает запрос UAC (права администратора).
+    /// Возвращает путь к созданному ярлыку; при ошибке - текст ошибки.
+    /// </summary>
+    public static string СоздатьExeЯрлыкНаРабочемСтоле()
+    {
+        try
+        {
+            // Куда кладем ярлык - папка Рабочего стола текущего пользователя
+            string рабочийСтол = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            string путьЯрлыка = Path.Combine(рабочийСтол, "SHK CLEANER.exe");
+
+            // Формируем VBS-скрипт (Windows Script Host), который умеет создавать .lnk файлы.
+            // Сам скрипт полностью на английском, чтобы cscript точно его понял.
+            string vbs = $"""
+                Set shell = CreateObject("WScript.Shell")
+                Set lnk = shell.CreateShortcut("{путьЯрлыка.Replace("\"", "\"\"")}")
+                lnk.TargetPath = "{Environment.ProcessPath?.Replace("\"", "\"\"")}"
+                lnk.WorkingDirectory = "{AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\').Replace("\"", "\"\"")}"
+                lnk.Description = "SHK CLEANER - PC cleaning utility"
+                ' Take the icon from the program itself (first available image)
+                lnk.IconLocation = "{Environment.ProcessPath?.Replace("\"", "\"\"")},0"
+                On Error Resume Next
+                lnk.Save
+                """;
+
+            string vbsФайл = Path.Combine(Path.GetTempPath(), $"shk_lnk_{Guid.NewGuid():N}.vbs");
+            File.WriteAllText(vbsФайл, vbs, System.Text.Encoding.UTF8); // cscript понимает UTF-8
+
+            try
+            {
+                var процесс = new System.Diagnostics.Process();
+                процесс.StartInfo.FileName = "cscript.exe";
+                процесс.StartInfo.Arguments = $"//nologo //b \"{vbsФайл}\"";
+                процесс.StartInfo.CreateNoWindow = true; // чёрное окно консоли не показываем
+                процесс.StartInfo.UseShellExecute = false;
+                процесс.Start();
+                процесс.WaitForExit(8000); // ждём максимум 8 секунд
+            }
+            finally
+            {
+                try { File.Delete(vbsФайл); } catch { /* временный файл можно и не удалить */ }
+            }
+
+            if (!File.Exists(путьЯрлыка))
+                return Loc.Get("AutostartError") + " Не удалось создать файл ярлыка.";
+
+            return путьЯрлыка; // успех - возвращаем путь к готовому ярлыку
         }
         catch (Exception e)
         {

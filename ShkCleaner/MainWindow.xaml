@@ -532,6 +532,11 @@
                             Tag="CheckUpdates" Click="ПроверитьОбновления_Click"
                             HorizontalAlignment="Center" MinWidth="220"/>
 
+                    <!-- Кнопка создания EXE-ярлыка на Рабочем столе -->
+                    <Button x:Name="КнопкаЯрлык" Content="📌 Создать .exe ярлык на рабочем столе"
+                            Style="{StaticResource КнопкаСтиль}" Click="СоздатьЯрлык_Click"
+                            HorizontalAlignment="Center" MinWidth="220" Margin="0,10,0,0"/>
+
                     <TextBlock Tag="Copyright" Text="© 2026 SHK. Все права защищены." HorizontalAlignment="Center" Margin="0,26,0,0" FontSize="12"
                                Foreground="{DynamicResource ТекстВторичныйБраш}"/>
                 </StackPanel>

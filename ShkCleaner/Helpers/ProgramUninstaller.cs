@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Collections.Generic;  // List<T>, Dictionary<TKey, TValue>
+using System.Linq;              // LINQ: Where/OrderBy/Take
 using System.IO;
 using System.Security;
 using System.Globalization;
@@ -210,26 +212,41 @@ public class ProgramUninstaller
             IntPtr выбранный = большойЗначок != IntPtr.Zero ? большойЗначок : маленькийЗначок;
             if (выбранный == IntPtr.Zero) return null;
 
-            using var значок = System.Drawing.Icon.FromHandle(выбранный);
-            using var битмап = значок.ToBitmap();
+            // NOTIFYICONDATA: берём HICON из Windows и превращаем его в WPF-картинку.
+            // Этот способ НЕ требует System.Drawing.Common, поэтому работает стабильно.
+            var nida = new NOTIFYICONDATA
+            {
+                cbSize = Marshal.SizeOf(typeof(NOTIFYICONDATA)),
+                hWnd = IntPtr.Zero,
+                uID = 1u,
+                uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP,
+                uCallbackMessage = WM_USER + 1u,
+                hIcon = выбранный,
+                szTip = "SHK CLEANER",
+            };
 
-            // Конвертируем GDI+ изображение в WPF-картинку через память (PNG)
-            using var memory = new MemoryStream();
-            битмап.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
-            memory.Position = 0;
+            IntPtr дубликат = (IntPtr)Shell_NotifyIcon(NIM_ADD, ref nida);
+            if (дубликат == IntPtr.Zero) дубликат = выбранный; // если не удалось - используем оригинал
 
-            var картинка = new System.Windows.Media.Imaging.BitmapImage();
-            картинка.BeginInit();
-            картинка.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
-            картинка.StreamSource = memory;
-            картинка.EndInit();
-            картинка.Freeze(); // можно использовать из любого потока, рендер быстрее
+            try
+            {
+                // GetImageSource создаёт независимую копию пикселей, поток можно закрывать
+                var картинка = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+                    дубликат, Int32Rect.Empty,
+                    System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+                картинка.Freeze(); // можно использовать из любого потока, рендер быстрее
 
-            // Освобождаем нативные handles значков Windows
-            if (большойЗначок != IntPtr.Zero) DestroyIcon(большойЗначок);
-            if (маленькийЗначок != IntPtr.Zero) DestroyIcon(маленькийЗначок);
+                // Освобождаем нативные handles значков Windows
+                if (большойЗначок != IntPtr.Zero) DestroyIcon(большойЗначок);
+                if (маленькийЗначок != IntPtr.Zero) DestroyIcon(маленькийЗначок);
 
-            return картинка;
+                return картинка;
+            }
+            finally
+            {
+                // Удаляем временный значок из системного трея, чтобы не оставлять "мусор"
+                if (дубликат != выбранный) Shell_NotifyIcon(NIM_DELETE, ref nida);
+            }
         }
         catch (Exception e)
         {
@@ -247,6 +264,40 @@ public class ProgramUninstaller
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
     private static extern bool DestroyIcon(IntPtr handle);
+
+    // ---------- Дублирование HICON через Shell_NotifyIcon ----------
+    // Извлечённый через ExtractIconEx значок нельзя просто так "копировать" без GDI+,
+    // поэтому временно добавляем его в трей - Windows сама делает независимую копию HICON.
+    private const uint NIM_ADD = 0x0;
+    private const uint NIM_DELETE = 0x2;
+    private const uint NIF_MESSAGE = 0x1;
+    private const uint NIF_ICON = 0x2;
+    private const uint NIF_TIP = 0x4;
+    private const uint WM_USER = 0x400;
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private struct NOTIFYICONDATA
+    {
+        public int cbSize;                       // размер структуры (обязательно заполнить!)
+        public IntPtr hWnd;                      // окно-владелец (нам не нужен - ноль)
+        public uint uID;                         // идентификатор значка
+        public uint uFlags;                      // какие поля заполнены
+        public uint uCallbackMessage;            // сообщение Windows (константа)
+        public IntPtr hIcon;                     // сам значок (HICON)
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string szTip;                     // всплывающая подсказка
+        public uint dwState;
+        public uint dwStateMask;
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string szInfo;
+        public uint uVersionOrTimeout;
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 64)]
+        public string szInfoTitle;
+        public uint dwInfoFlags;
+    }
+
+    [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private static extern int Shell_NotifyIcon(uint message, ref NOTIFYICONDATA данные);
 
     /// <summary>
     /// Запускает деинсталлятор программы (UninstallString из реестра).

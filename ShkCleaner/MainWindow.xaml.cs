@@ -1,12 +1,15 @@
 using System.Diagnostics;
 using System.IO;
 using System.Collections;      // необобщённый IEnumerable (обход логического дерева)
+using System.Collections.Generic; // List/IEnumerable<T> - Contains через LINQ
+using System.Linq;             // LINQ-метод Contains для проверки "файл ещё в списке?"
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents; // Hyperlink (ссылка на GitHub на странице "О программе")
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
+using System.Windows.Media.Imaging; // BitmapImage / BitmapCacheOption (логотип из ресурсов)
+using System.Windows.Threading;     // DispatcherUnhandledException
 using ShkCleaner.Helpers;
 using ShkCleaner.Models;
 
@@ -590,17 +593,12 @@ public partial class MainWindow : Window
                 ЗаглушкаИконкиБуква.Text = программа.ПерваяБуква;
             }
 
-            // Подписи с данными программы
+            // Подписи с данными программы (заполняем каждый TextBlock панели предпросмотра)
             ПредпросмотрИмя.Text = программа.Имя;
             ПредпросмотрИздатель.Text = string.Format(Loc.Get("PublisherLabel"), программа.Издатель);
             ПредпросмотрВерсия.Text = string.Format(Loc.Get("VersionLabel"), программа.Версия);
-            // Внимание: эти TextBlock'ы относятся к разделу ФОТО (в XAML они названы так же),
-            // поэтому для программы используем другие поля панели предпросмотра.
-            ПредпросмотрИнфоПрограммы.Text =
-                $"{Loc.Get("PublisherLabel")}: {программа.ИздателЬБезПробелаЕслиПусто}\n" +
-                $"{Loc.Get("VersionLabel")}: {программа.Версия}\n" +
-                $"{Loc.Get("InstallDateLabel")}: {программа.ДатаУстановкиСтрока}\n" +
-                $"{Loc.Get("SizeLabel")}: {программа.РазмерЧеловек}";
+            ПредпросмотрДата.Text = string.Format(Loc.Get("InstallDateLabel"), программа.ДатаУстановкиСтрока);
+            ПредпросмотрРазмер.Text = string.Format(Loc.Get("SizeLabel"), программа.РазмерЧеловек);
 
             // Команда удаления из реестра (UninstallString)
             ПредпросмотрКоманда.Text = программа.СтрокаУдаления;
@@ -985,6 +983,24 @@ public partial class MainWindow : Window
     {
         // Заглушка проверки обновлений
         ПоказатьИнформацию(Loc.Get("Info"), Loc.Get("NoUpdates"));
+    }
+
+    /// <summary>
+    /// Кнопка "Создать .exe ярлык на рабочем столе" (страница "О программе").
+    /// Создаёт на Рабочем столе файл "SHK CLEANER.exe" - это ярлык, который
+    /// запускает программу и сразу показывает запрос UAC (права администратора).
+    /// </summary>
+    private void СоздатьЯрлык_Click(object sender, RoutedEventArgs e)
+    {
+        string результат = Helpers.SettingsManager.СоздатьExeЯрлыкНаРабочемСтоле();
+
+        // Если вернулась ошибка - покажем её, иначе путь к готовому ярлыку
+        if (результат.Contains(Loc.Get("AutostartError")) || результат.StartsWith("Произошла ошибка"))
+            ПоказатьОшибкуТекст(результат);
+        else
+            ПоказатьИнформацию(Loc.Get("Info"),
+                $"Готово! На Рабочем столе создан файл:\n{результат}\n\n" +
+                "Двойной клик по нему запускает SHK CLEANER с запросом прав администратора.");
     }
 
     // =====================================================================
