@@ -30,7 +30,7 @@ public class PhotoInfo : BaseModel
         {
             Заполнить(ref _размерБайт, value);
             // Уведомляем интерфейс, что производные строковые поля тоже изменились
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(РазмерЧеловек));
+            OnPropertyChanged(nameof(РазмерЧеловек));
         }
     }
 
@@ -70,7 +70,7 @@ public class PhotoInfo : BaseModel
         set
         {
             Заполнить(ref _миниатюра, value);
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(ЕстьМиниатюра));
+            OnPropertyChanged(nameof(ЕстьМиниатюра));
         }
     }
 

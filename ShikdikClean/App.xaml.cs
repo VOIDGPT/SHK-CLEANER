@@ -24,7 +24,7 @@ public partial class App : Application
                 "Пожалуйста, запустите программу от имени администратора.",
                 "Требуется администратор",
                 MessageBoxButton.OK,
-                MessageBoxImage.Shield);
+                MessageBoxImage.Question);
             // Не прерываем работу: часть функций (TEMP пользователя) всё равно будет работать.
         }
 
@@ -46,7 +46,7 @@ public partial class App : Application
     }
 
     /// <summary>Глобальный доступ к текущим настройкам приложения из любой страницы.</summary>
-    public static Models.AppSettings НастройкиГлавная { get; private set; } = new();
+    public static Models.AppSettings НастройкиГлавная { get; internal set; } = new();
 
     /// <summary>Проверяет, входит ли текущий пользователь в группу администраторов.</summary>
     public static bool ЗапущенКакАдминистратор()

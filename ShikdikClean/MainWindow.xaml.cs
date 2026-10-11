@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.IO;
+using System.Collections;      // необобщённый IEnumerable (обход логического дерева)
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents; // Hyperlink (ссылка на GitHub на странице "О программе")
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -78,25 +80,37 @@ public partial class MainWindow : Window
     /// <summary>Обходит ОДНО дерево (visual или logical) и переводит элементы по Tag.</summary>
     private void ApplyLocalization(DependencyObject корень, Func<DependencyObject, IEnumerable>? детиФункция)
     {
-        if (корень is FrameworkElement fe && fe.Tag is string ключ && ключ.Length > 0)
+        // Hyperlink НЕ является FrameworkElement (это ContentElement), проверяем его отдельно
+        if (корень is Hyperlink ссылкаГлобальная)
         {
-            switch (fe)
+            // У Hyperlink нет свойства Tag, поэтому текст берём из словаря по ключу "GitHubLink"
+            // (ссылка на GitHub у нас одна).
+            SetHyperlinkText(ссылкаГлобальная, Loc.Get("GitHubLink"));
+        }
+
+        if (корень is FrameworkElement fe)
+        {
+            if (fe.Tag is string ключ && ключ.Length > 0)
             {
-                case TextBlock tb: tb.Text = Loc.Get(ключ); break;
-                case Button btn: btn.Content = Loc.Get(ключ); break;
-                case CheckBox cb: cb.Content = Loc.Get(ключ); break;
-                case Expander exp: exp.Header = Loc.Get(ключ); break;
-                case Hyperlink link: SetHyperlinkText(link, Loc.Get(ключ)); break;
-                // Навигационные RadioButton'ы тоже переводим (у них GroupName="Разделы")
-                case RadioButton rb: rb.Content = Loc.Get(ключ); break;
-                // Placeholder поля поиска показываем прямо текстом в TextBox
-                case TextBox txt when ключ == "SearchPlaceholder":
-                    if (txt.Text.Length == 0 || txt.Text == Loc.Get("SearchPlaceholder"))
-                        txt.Text = Loc.Get(ключ);
-                    break;
+                switch (fe)
+                {
+                    case TextBlock tb: tb.Text = Loc.Get(ключ); break;
+                    case Button btn: btn.Content = Loc.Get(ключ); break;
+                    case CheckBox cb: cb.Content = Loc.Get(ключ); break;
+                    case Expander exp: exp.Header = Loc.Get(ключ); break;
+                    // Навигационные RadioButton'ы тоже переводим (у них GroupName="Разделы")
+                    case RadioButton rb: rb.Content = Loc.Get(ключ); break;
+                    // Placeholder поля поиска показываем прямо текстом в TextBox
+                    case TextBox txt when ключ == "SearchPlaceholder":
+                        if (txt.Text.Length == 0 || txt.Text == Loc.Get("SearchPlaceholder"))
+                            txt.Text = Loc.Get(ключ);
+                        break;
+                }
             }
         }
 
+        // Параметр может быть null (например, для логического дерева у некоторых элементов) - защищаемся
+        if (детиФункция == null) return;
         foreach (object ребёнок in детиФункция(корень))
             if (ребёнок is DependencyObject dep)
                 ApplyLocalization(dep, детиФункция);
@@ -112,7 +126,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Логическое дерево (доступно всегда, даже для свёрнутых вкладок).</summary>
-    private static IEnumerable LogicalChildren(DependencyObject d) => LogicalTreeHelper.GetChildren(d);
+    private static IEnumerable DetniLogicheskogoDereva(DependencyObject d) => LogicalTreeHelper.GetChildren(d);
 
     /// <summary>Меняет текст внутри Hyperlink (у него вместо Content - Inlines).</summary>
     private static void SetHyperlinkText(Hyperlink ссылка, string текст)
@@ -126,7 +140,7 @@ public partial class MainWindow : Window
     {
         // Скрытые разделы (Visibility=Collapsed) отсутствуют в visual tree,
         // поэтому сначала проходим по ЛОГИЧЕСКОМУ дереву всего окна...
-        ApplyLocalization(this, LogicalChildren);
+        ApplyLocalization(this, DetniLogicheskogoDereva);
         // ...а затем по видимой части визуального дерева (шаблоны ItemsControl)
         ApplyLocalization(this, VisualChildren);
 

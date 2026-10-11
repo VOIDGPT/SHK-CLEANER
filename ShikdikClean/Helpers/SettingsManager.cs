@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Media; // нужен для типа Color (цвета тем)
 using ShikdikClean.Models;
 
 namespace ShikdikClean.Helpers;

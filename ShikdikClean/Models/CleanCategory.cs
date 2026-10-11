@@ -38,8 +38,8 @@ public class CleanCategory : BaseModel
         {
             Заполнить(ref _размерБайт, value);
             // Сообщаем интерфейсу обновить производные текстовые поля
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(РазмерЧеловек));
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(Инфо));
+            OnPropertyChanged(nameof(РазмерЧеловек));
+            OnPropertyChanged(nameof(Инфо));
         }
     }
 
@@ -50,7 +50,7 @@ public class CleanCategory : BaseModel
         set
         {
             Заполнить(ref _количествоФайлов, value);
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(Инфо));
+            OnPropertyChanged(nameof(Инфо));
         }
     }
 
@@ -61,7 +61,7 @@ public class CleanCategory : BaseModel
         set
         {
             Заполнить(ref _найден, value);
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(Инфо));
+            OnPropertyChanged(nameof(Инфо));
         }
     }
 

@@ -7,6 +7,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <!-- Позволяет собирать проект даже на не-Windows системах (для проверки кода) -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <!-- Манифест с требованием прав администратора -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Информация о сборке (версия отображается на странице "О программе") -->
@@ -18,8 +20,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Нужен для Microsoft.VisualBasic.FileIO (удаление файлов в Корзину) -->
-    <PackageReference Include="Microsoft.VisualBasic" Version="10.4.0" />
+    <!-- Microsoft.VisualBasic (нужен для FileSystem.DeleteFile -> удаление в Корзину)
+         входит в состав .NET для Windows, PackageReference НЕ требуется -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Убираем предупреждение о "неиспользуемом" VisualBasic при компиляции на не-Windows -->
+    <FrameworkReference Update="Microsoft.WindowsDesktop.App" />
   </ItemGroup>
 
   <ItemGroup>

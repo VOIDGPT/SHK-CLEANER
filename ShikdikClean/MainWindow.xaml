@@ -257,9 +257,10 @@
                                                             <TextBlock Text="🖼️" FontSize="34" Opacity="0.4"
                                                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                         </Border>
-                                                        <!-- Сама миниатюра -->
-                                                        <Image Source="{Binding Миниатюра}" Stretch="Uniform"
-                                                               CornerRadius="6"/>
+                                                        <!-- Сама миниатюра (закругление через Border, т.к. у Image нет CornerRadius) -->
+                                                        <Border CornerRadius="6" ClipToBounds="True">
+                                                            <Image Source="{Binding Миниатюра}" Stretch="Uniform"/>
+                                                        </Border>
                                                         <!-- Чекбокс выбора - поверх угла карточки -->
                                                         <CheckBox IsChecked="{Binding Выбрано}"
                                                                 HorizontalAlignment="Right" VerticalAlignment="Top"

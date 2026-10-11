@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.IO;
+using System.Security;
 using System.Globalization;
 using Microsoft.Win32;
 using ShikdikClean.Models;

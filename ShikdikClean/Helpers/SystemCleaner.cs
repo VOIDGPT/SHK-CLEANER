@@ -11,7 +11,7 @@ namespace ShikdikClean.Helpers;
 public class SystemCleaner
 {
     /// <summary>Сколько файлов было пропущено из-за "Access Denied" при последней операции.</summary>
-    public int ПропущеноФайлов { get; private set; }
+    public int ПропущеноФайлов { get; internal set; }
 
     // ---------- Пути к папкам для очистки ----------
 

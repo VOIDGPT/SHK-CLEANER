@@ -75,7 +75,7 @@ public class ProgramInfo : BaseModel
         ДатаУстановки.HasValue ? ДатаУстановки.Value.ToString("dd.MM.yyyy") : "—";
 
     /// <summary>Размер в человекочитаемом виде (МБ/ГБ).</summary>
-    public string РазмерЧеловек => Utils.ФорматироватьРазмер(РазмерКб * 1024);
+    public string РазмерЧеловек => Utils.ФорматироватьРазмер((long)(РазмерКб * 1024));
 
     /// <summary>Поиск по таблице фильтрует именно по этим полям.</summary>
     public bool ПодходитПодФильтр(string фильтр)
@@ -101,6 +101,12 @@ public abstract class BaseModel : INotifyPropertyChanged
         // Если значение не изменилось - ничего не делаем (оптимизация)
         if (EqualityComparer<T>.Default.Equals(поле, значение)) return;
         поле = значение;
+        OnPropertyChanged(имяСвойства);
+    }
+
+    /// <summary>Уведомляет WPF-интерфейс о том, что свойство с таким именем изменилось.</summary>
+    protected void OnPropertyChanged([CallerMemberName] string? имяСвойства = null)
+    {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(имяСвойства));
     }
 }
