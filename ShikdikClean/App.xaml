@@ -1,4 +1,4 @@
-<Application x:Class="ShikdikClean.App"
+<Application x:Class="ShxClean.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
@@ -18,6 +18,19 @@
             <SolidColorBrush x:Key="ТекстВторичныйБраш" Color="#A0A0A0"/>
             <SolidColorBrush x:Key="АкцентБраш" Color="#007ACC"/>
             <SolidColorBrush x:Key="ГраницаБраш" Color="#333333"/>
+            <!-- Зелёный акцент (успех/освобождено) и мягкий фон для чипов-подсказок -->
+            <SolidColorBrush x:Key="ЗелёныйБраш" Color="#4CAF50"/>
+            <SolidColorBrush x:Key="ЧипБраш" Color="#2F2F33"/>
+
+            <!-- ================================================================ -->
+            <!-- ГРАДИЕНТ ЛОГОТИПА (металлик-синий) - используется в сайдбаре     -->
+            <!-- и на странице "О программе".                                     -->
+            <!-- ================================================================ -->
+            <LinearGradientBrush x:Key="ЛоготипГрадиент" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#007ACC" Offset="0"/>
+                <GradientStop Color="#2E8FD6" Offset="0.55"/>
+                <GradientStop Color="#4CAF50" Offset="1"/>
+            </LinearGradientBrush>
 
             <!-- ================================================================ -->
             <!-- СТИЛЬ ОБЫЧНОЙ КНОПКИ: закруглённые углы + анимация при наведении  -->
@@ -178,7 +191,17 @@
                 <Setter Property="GridLinesVisibility" Value="Horizontal"/>
                 <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource ГраницаБраш}"/>
                 <Setter Property="HeadersVisibility" Value="Column"/>
-                <Setter Property="RowHeight" Value="34"/>
+                <Setter Property="RowHeight" Value="40"/>
+            </Style>
+
+            <!-- Строка таблицы: лёгкая подсветка под курсором мыши -->
+            <Style TargetType="DataGridRow">
+                <Setter Property="Background" Value="Transparent"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#3329292D"/>
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
             <Style TargetType="DataGridColumnHeader">
@@ -218,12 +241,49 @@
             </Style>
 
             <!-- ================================================================ -->
+            <!-- КАРТОЧКА СТАТИСТИКИ (плитки "Всего мусора", "Освобождено" и т.п.) -->
+            <!-- Внутрь кладётся StackPanel: TextBlock x:Name="Значение" + подпись  -->
+            <!-- ================================================================ -->
+            <Style x:Key="СтатистикаКарточка" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource ФонКарточкиБраш}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource ГраницаБраш}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="16,12"/>
+                <Setter Property="Margin" Value="0,0,12,0"/>
+            </Style>
+
+            <!-- Цветной "чип" (например бейдж "Тихое удаление доступно") -->
+            <Style x:Key="ЧипСтиль" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource ЧипБраш}"/>
+                <Setter Property="CornerRadius" Value="999"/>
+                <Setter Property="Padding" Value="10,4"/>
+            </Style>
+
+            <!-- Карточка-контейнер с анимацией подсветки рамки при наведении -->
+            <Style x:Key="КарточкаХоверСтиль" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource ФонКарточкиБраш}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource ГраницаБраш}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="8"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="BorderBrush" Value="{DynamicResource АкцентБраш}"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- ================================================================ -->
             <!-- КОНВЕРТАРЫ ДЛЯ ИНТЕРФЕЙСА                                        -->
             <!-- Инверсия bool: true -> Collapsed (скрыть), false -> Visible      -->
             <!-- Используется для картинки-заглушки, пока миниатюра не загружена. -->
             <!-- ================================================================ -->
             <local:InverseBoolToVisibilityConverter x:Key="InvBool"
-                    xmlns:local="clr-namespace:ShikdikClean"/>
+                    xmlns:local="clr-namespace:ShxClean"/>
+
+            <!-- Прямая инверсия предыдущего: true -> Visible, false -> Collapsed -->
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
         </ResourceDictionary>
     </Application.Resources>

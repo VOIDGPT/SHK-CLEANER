@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Windows;
-using ShikdikClean.Helpers;
+using ShxClean.Helpers;
 
-namespace ShikdikClean;
+namespace ShxClean;
 
 /// <summary>
 /// Точка входа приложения. Здесь мы:
@@ -24,7 +24,7 @@ public partial class App : Application
         {
             MessageBox.Show(
                 "Произошла непредвиденная ошибка:\n\n" + args.Exception.Message,
-                "Shikdik Clean — ошибка",
+                "SHX Clean — ошибка",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             args.Handled = true; // не даём приложению упасть
@@ -33,7 +33,7 @@ public partial class App : Application
         {
             MessageBox.Show(
                 "Критическая ошибка:\n\n" + args.ExceptionObject,
-                "Shikdik Clean — ошибка",
+                "SHX Clean — ошибка",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         };
@@ -46,7 +46,7 @@ public partial class App : Application
             bool этоПерезапуск = e.Args.Contains("--shikdik-restart");
 
             var ответ = MessageBox.Show(
-                "Shikdik Clean требует прав администратора,\n" +
+                "SHX Clean требует прав администратора,\n" +
                 "чтобы очищать системные папки и корзину.\n\n" +
                 "Нажмите \"OK\" - программа перезапустится и запросит права (UAC).\n" +
                 "Нажмите \"Отмена\" - программа продолжит работу в ограниченном режиме.",
@@ -61,7 +61,7 @@ public partial class App : Application
                     // Перезапускаем свою exe-шку с повышенными правами (появит окно UAC)
                     var startInfo = new ProcessStartInfo
                     {
-                        FileName = Environment.ProcessPath ?? "Shikdik Clean.exe",
+                        FileName = Environment.ProcessPath ?? "SHX Clean.exe",
                         Arguments = "--shikdik-restart",
                         Verb = "runas",              // ключевое слово: запросить права администратора
                         UseShellExecute = true      // verb runas работает только так

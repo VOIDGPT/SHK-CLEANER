@@ -1,7 +1,7 @@
-<Window x:Class="ShikdikClean.MainWindow"
+<Window x:Class="ShxClean.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Shikdik Clean — очистка компьютера"
+        Title="SHX Clean — очистка компьютера"
         Width="1100" Height="750"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource ФонБраш}"
@@ -18,14 +18,16 @@
         <Border Grid.Column="0" Background="{DynamicResource ФонПанелиБраш}">
             <DockPanel>
 
-                <!-- Логотип сверху -->
+                <!-- Логотип сверху: PNG-иконка приложения (замените файл Resources/appicon_256.png на свою!) -->
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="18,22,18,18">
-                    <Border Background="{DynamicResource АкцентБраш}" CornerRadius="10"
+                    <Border Background="{DynamicResource ФонКарточкиБраш}" CornerRadius="10"
+                            BorderBrush="{DynamicResource ГраницаБраш}" BorderThickness="1"
                             Width="42" Height="42">
-                        <TextBlock Text="🧹" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Image Source="/Resources/appicon_48.png" Width="34" Height="34"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Shikdik Clean" FontSize="17" FontWeight="Bold"
+                        <TextBlock Text="SHX Clean" FontSize="17" FontWeight="Bold"
                                    Foreground="{DynamicResource ТекстБраш}"/>
                         <TextBlock Text="v1.0.0" FontSize="11"
                                    Foreground="{DynamicResource ТекстВторичныйБраш}"/>
@@ -66,6 +68,7 @@
             <Grid x:Name="РазделОчистка">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>   <!-- заголовок -->
+                    <RowDefinition Height="Auto"/>   <!-- карточки статистики -->
                     <RowDefinition Height="Auto"/>   <!-- кнопки + прогресс -->
                     <RowDefinition Height="*"/>      <!-- чекбоксы категорий -->
                     <RowDefinition Height="Auto"/>   <!-- результат -->
@@ -76,8 +79,44 @@
                     <TextBlock Tag="CleanSubHeader" Style="{StaticResource ПодзаголовокСтраницы}" Margin="0,4,0,0"/>
                 </StackPanel>
 
+                <!-- Карточки статистики: показываются после сканирования/очистки -->
+                <UniformGrid Grid.Row="1" Rows="1" Columns="4" Margin="0,0,0,12">
+                    <Border Style="{StaticResource СтатистикаКарточка}">
+                        <StackPanel>
+                            <TextBlock x:Name="СтатМусорЗначение" Text="—" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource АкцентБраш}"/>
+                            <TextBlock Tag="StatTotalJunk" FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource СтатистикаКарточка}">
+                        <StackPanel>
+                            <TextBlock x:Name="СтатФайлыЗначение" Text="—" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ТекстБраш}"/>
+                            <TextBlock Tag="StatFilesFound" FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource СтатистикаКарточка}">
+                        <StackPanel>
+                            <TextBlock x:Name="СтатКатегорииЗначение" Text="—" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ТекстБраш}"/>
+                            <TextBlock Tag="StatCategories" FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource СтатистикаКарточка}" Margin="0">
+                        <StackPanel>
+                            <TextBlock x:Name="СтатОсвобожденоЗначение" Text="—" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ЗелёныйБраш}"/>
+                            <TextBlock Tag="StatFreed" FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
                 <!-- Кнопки и прогресс-бар -->
-                <StackPanel Grid.Row="1" Margin="0,0,0,12">
+                <StackPanel Grid.Row="2" Margin="0,0,0,12">
                     <StackPanel Orientation="Horizontal">
                         <Button x:Name="КнопкаСканировать" Style="{StaticResource КнопкаСтиль}"
                                 Tag="ScanButton" Click="Сканировать_Click" MinWidth="150"/>
@@ -94,7 +133,7 @@
                 </StackPanel>
 
                 <!-- Список категорий очистки (генерируется кодом из ObservableCollection) -->
-                <Border Grid.Row="2" Style="{StaticResource КарточкаСтиль}">
+                <Border Grid.Row="3" Style="{StaticResource КарточкаСтиль}">
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top" Tag="WhatToClean" FontWeight="SemiBold" Margin="0,0,0,8"/>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -116,7 +155,7 @@
                 </Border>
 
                 <!-- Большие файлы из папки Загрузки -->
-                <StackPanel Grid.Row="3" Margin="0,12,0,0">
+                <StackPanel Grid.Row="4" Margin="0,12,0,0">
                     <Expander x:Name="РаскрышкаЗагрузки" Tag="DownloadsList" IsExpanded="False">
                         <ScrollViewer MaxHeight="160" VerticalScrollBarVisibility="Auto">
                             <ItemsControl x:Name="СписокБольшихФайлов">
@@ -166,31 +205,116 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- Таблица программ -->
-                <Border Grid.Row="2" Style="{StaticResource КарточкаСтиль}" Padding="0">
-                    <DataGrid x:Name="ТаблицаПрограмм" AutoGenerateColumns="False"
-                              CanUserAddRows="False" IsReadOnly="True"
-                              SelectionMode="Single" HeadersVisibility="Column"
-                              MouseDoubleClick="УдалитьПрограмму_Click">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding Имя}" Width="3*">
-                                <DataGridTextColumn.Header><TextBlock Tag="ColName"/></DataGridTextColumn.Header>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Binding="{Binding Издатель}" Width="2*">
-                                <DataGridTextColumn.Header><TextBlock Tag="ColPublisher"/></DataGridTextColumn.Header>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Binding="{Binding Версия}" Width="*">
-                                <DataGridTextColumn.Header><TextBlock Tag="ColVersion"/></DataGridTextColumn.Header>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Binding="{Binding ДатаУстановкиСтрока}" Width="Auto">
-                                <DataGridTextColumn.Header><TextBlock Tag="ColDate"/></DataGridTextColumn.Header>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Binding="{Binding РазмерЧеловек}" Width="Auto">
-                                <DataGridTextColumn.Header><TextBlock Tag="ColSize"/></DataGridTextColumn.Header>
-                            </DataGridTextColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Border>
+                <!-- Таблица программ (слева) + предпросмотр выбранной программы (справа) -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource КарточкаСтиль}" Padding="0">
+                        <DataGrid x:Name="ТаблицаПрограмм" AutoGenerateColumns="False"
+                                  CanUserAddRows="False" IsReadOnly="True"
+                                  SelectionMode="Single" HeadersVisibility="Column"
+                                  SelectionChanged="ТаблицаПрограмм_SelectionChanged"
+                                  MouseDoubleClick="УдалитьПрограмму_Click">
+                            <DataGrid.Columns>
+                                <!-- Колонка со ЗНАЧКОМ программы: реальная иконка из файла
+                                     или красивая цветная заглушка с первой буквой названия -->
+                                <DataGridTemplateColumn Width="48">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid Width="32" Height="32">
+                                                <!-- Заглушка: градиентный кружок с буквой -->
+                                                <Border CornerRadius="8"
+                                                        Visibility="{Binding ЕстьИконка, Converter={StaticResource InvBool}}">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                            <GradientStop Color="#007ACC" Offset="0"/>
+                                                            <GradientStop Color="#4CAF50" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                    <TextBlock Text="{Binding ПерваяБуква}" Foreground="White"
+                                                               FontSize="16" FontWeight="Bold"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <!-- Настоящая иконка программы -->
+                                                <Image Source="{Binding Иконка}" Stretch="Uniform"
+                                                       Visibility="{Binding ЕстьИконка, Converter={StaticResource BoolToVis}}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding Имя}" Width="3*">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColName"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Издатель}" Width="2*">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColPublisher"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Версия}" Width="*">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColVersion"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding ДатаУстановкиСтрока}" Width="Auto">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColDate"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding РазмерЧеловек}" Width="Auto">
+                                    <DataGridTextColumn.Header><TextBlock Tag="ColSize"/></DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <!-- Панель предпросмотра программы: большая иконка + сведения -->
+                    <Border x:Name="ПанельПрограммы" Grid.Column="1" Style="{StaticResource КарточкаСтиль}" Margin="12,0,0,0">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Tag="ProgramPreview" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                            <!-- Нижняя часть: команда удаления -->
+                            <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                                <TextBlock Tag="UninstallCommand" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                <TextBlock x:Name="ПредпросмотрКоманда" Text="" FontSize="11" TextWrapping="Wrap"
+                                           MaxHeight="54" Foreground="{DynamicResource ТекстВторичныйБраш}"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <!-- Основная часть: иконка 64x64 + подписи -->
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <Grid Width="64" Height="64" HorizontalAlignment="Center" Margin="0,4,0,10">
+                                        <!-- Заглушка с буквой названия (как в таблице) -->
+                                        <Border x:Name="ЗаглушкаИконкиПрограммы" CornerRadius="14"
+                                                Background="{DynamicResource ЛоготипГрадиент}">
+                                            <TextBlock x:Name="ЗаглушкаИконкиБуква" Text="?" Foreground="White"
+                                                       FontSize="30" FontWeight="Bold"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <!-- Настоящая увеличенная иконка программы -->
+                                        <Image x:Name="ПредпросмотрИконка" Stretch="Uniform"/>
+                                    </Grid>
+                                    <TextBlock x:Name="ПредпросмотрИмя" Text="" FontWeight="Bold" FontSize="15"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                    <TextBlock x:Name="ПредпросмотрИздатель" Tag="PublisherLabel" FontSize="12" Margin="0,8,0,0"
+                                               TextWrapping="Wrap" Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                    <TextBlock x:Name="ПредпросмотрВерсия" Tag="VersionLabel" FontSize="12" Margin="0,3,0,0"
+                                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                    <TextBlock x:Name="ПредпросмотрДата" Tag="InstallDateLabel" FontSize="12" Margin="0,3,0,0"
+                                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                    <TextBlock x:Name="ПредпросмотрРазмер" Tag="SizeLabel" FontSize="12" Margin="0,3,0,0"
+                                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                    <!-- Зелёный чип "Тихое удаление доступно" -->
+                                    <Border x:Name="ЧипТихоеУдаление" Style="{StaticResource ЧипСтиль}"
+                                            HorizontalAlignment="Center" Margin="0,10,0,0" Visibility="Collapsed">
+                                        <TextBlock Text="✔" Foreground="{DynamicResource ЗелёныйБраш}" FontSize="11"/>
+                                    </Border>
+                                    <TextBlock x:Name="ПредпросмотрПодсказкаПрограмм" Tag="ProgramHint" TextWrapping="Wrap"
+                                               FontSize="12" TextAlignment="Center" Margin="0,8,0,0"
+                                               Foreground="{DynamicResource ТекстВторичныйБраш}"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </Border>
+                </Grid>
 
                 <TextBlock Grid.Row="3" x:Name="ТекстСтатусПрограмм" Text="" Margin="0,10,0,0"
                            Foreground="{DynamicResource ТекстВторичныйБраш}"/>
@@ -398,14 +522,14 @@
                     <TextBlock HorizontalAlignment="Center" Cursor="Hand" Margin="0,4,0,20">
                         <Hyperlink x:Name="СсылкаGitHub"
                                    Foreground="{DynamicResource АкцентБраш}"
-                                   Click="GitHub_Click"><Run Text="🔗 GitHub: github.com/shikdik/clean"/></Hyperlink>
+                                   Click="GitHub_Click"><Run Text="🔗 GitHub: github.com/shx/clean"/></Hyperlink>
                     </TextBlock>
 
                     <Button x:Name="КнопкаОбновления" Style="{StaticResource КнопкаСтиль}"
                             Tag="CheckUpdates" Click="ПроверитьОбновления_Click"
                             HorizontalAlignment="Center" MinWidth="220"/>
 
-                    <TextBlock Tag="Copyright" Text="© 2026 Shikdik. Все права защищены." HorizontalAlignment="Center" Margin="0,26,0,0" FontSize="12"
+                    <TextBlock Tag="Copyright" Text="© 2026 SHX. Все права защищены." HorizontalAlignment="Center" Margin="0,26,0,0" FontSize="12"
                                Foreground="{DynamicResource ТекстВторичныйБраш}"/>
                 </StackPanel>
             </Grid>

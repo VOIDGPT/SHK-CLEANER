@@ -1,8 +1,8 @@
 using System.IO;
 using Microsoft.VisualBasic.FileIO; // FileSystem.DeleteFile - удаление в Корзину
-using ShikdikClean.Models;
+using ShxClean.Models;
 
-namespace ShikdikClean.Helpers;
+namespace ShxClean.Helpers;
 
 /// <summary>
 /// Класс для работы с фотографиями: сканирование папок, получение информации

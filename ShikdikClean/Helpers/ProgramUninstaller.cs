@@ -3,9 +3,9 @@ using System.IO;
 using System.Security;
 using System.Globalization;
 using Microsoft.Win32;
-using ShikdikClean.Models;
+using ShxClean.Models;
 
-namespace ShikdikClean.Helpers;
+namespace ShxClean.Helpers;
 
 /// <summary>
 /// Класс для чтения списка установленных программ из реестра Windows
@@ -148,8 +148,105 @@ public class ProgramUninstaller
             программа.РазмерКб = размерКб;
         }
 
+        // ---------- ИКОНКА ПРОГРАММЫ ----------
+        // 1) Пробуем готовое поле DisplayIcon (путь к .exe/.ico/.dll, иногда с индексом: "C:\a.exe,0")
+        string? иконкаПутьСтрока = ключ.GetValue("DisplayIcon") as string;
+        if (!string.IsNullOrWhiteSpace(иконкаПутьСтрока))
+        {
+            string путь = иконкаПутьСтрока.Trim().Trim('"');
+            int запятая = путь.LastIndexOf(',');
+            int индексИконки = 0;
+            // Если после запятой число - это индекс иконки внутри файла
+            if (запятая > 1 && int.TryParse(путь[(запятая + 1)..], out int idx))
+            {
+                индексИконки = idx;
+                путь = путь[..запятая];
+            }
+            // Разворачиваем переменные окружения (%SystemRoot% и т.п.)
+            try { путь = Environment.ExpandEnvironmentVariables(путь); } catch { }
+            if (File.Exists(путь))
+            {
+                программа.ПутьКИконкеФайла = путь;
+                программа.ИндексИконки = индексИконки;
+            }
+        }
+
+        // 2) Запасной вариант: ищем unins*.exe в папке установки
+        if (программа.ПутьКИконкеФайла is null)
+        {
+            string? папкаУстановки = ключ.GetValue("InstallLocation") as string;
+            if (!string.IsNullOrWhiteSpace(папкаУстановки))
+            {
+                try
+                {
+                    if (Directory.Exists(папкаУстановки))
+                    {
+                        var файлы = Directory.GetFiles(папкаУстановки, "unins*.exe");
+                        if (файлы.Length > 0) программа.ПутьКИконкеФайла = файлы[0];
+                    }
+                }
+                catch (Exception e) when (e is UnauthorizedAccessException || e is IOException) { }
+            }
+        }
+
         return программа;
     }
+
+    /// <summary>
+    /// Извлекает иконку из exe/dll/ico файла средствами Windows API.
+    /// Возвращает BitmapSource для показа в таблице или null при любой неудаче
+    /// (иконка - украшение, приложение из-за неё падать не должно!).
+    /// </summary>
+    public static System.Windows.Media.ImageSource? ИзвлечьИконку(string путьКФайлу, int индекс)
+    {
+        try
+        {
+            IntPtr большойЗначок = IntPtr.Zero, маленькийЗначок = IntPtr.Zero;
+            // Извлекаем сразу два размера: 32x32 (для таблицы) и 256x256 (для предпросмотра)
+            int результат = ExtractIconExW(путьКФайлу, индекс,
+                ref большойЗначок, ref маленькийЗначок, 1);
+            if (результат == 0) return null;
+
+            IntPtr выбранный = большойЗначок != IntPtr.Zero ? большойЗначок : маленькийЗначок;
+            if (выбранный == IntPtr.Zero) return null;
+
+            using var значок = System.Drawing.Icon.FromHandle(выбранный);
+            using var битмап = значок.ToBitmap();
+
+            // Конвертируем GDI+ изображение в WPF-картинку через память (PNG)
+            using var memory = new MemoryStream();
+            битмап.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+            memory.Position = 0;
+
+            var картинка = new System.Windows.Media.Imaging.BitmapImage();
+            картинка.BeginInit();
+            картинка.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            картинка.StreamSource = memory;
+            картинка.EndInit();
+            картинка.Freeze(); // можно использовать из любого потока, рендер быстрее
+
+            // Освобождаем нативные handles значков Windows
+            if (большойЗначок != IntPtr.Zero) DestroyIcon(большойЗначок);
+            if (маленькийЗначок != IntPtr.Zero) DestroyIcon(маленькийЗначок);
+
+            return картинка;
+        }
+        catch (Exception e)
+        {
+            // Любая проблема с извлечением (битый файл, нет прав) - тихо возвращаем null
+            System.Diagnostics.Debug.WriteLine($"Иконка не извлечена: {e.Message}");
+            return null;
+        }
+    }
+
+    // P/Invoke объявления Win32 API (нужны для извлечения иконок чужих программ)
+    [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private static extern int ExtractIconExW(string путьКФайлу, int индекс,
+        ref IntPtr значкиБольшие, ref IntPtr значкиМаленькие, uint количество);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool DestroyIcon(IntPtr handle);
 
     /// <summary>
     /// Запускает деинсталлятор программы (UninstallString из реестра).

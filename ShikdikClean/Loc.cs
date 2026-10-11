@@ -1,4 +1,4 @@
-namespace ShikdikClean;
+namespace ShxClean;
 
 /// <summary>
 /// Простая система локализации: словарь ключ -> перевод для трёх языков.
@@ -15,7 +15,7 @@ public static class Loc
     private static readonly Dictionary<string, (string ru, string en, string tr)> Переводы = new()
     {
         // ---- Навигация ----
-        ["NavTitle"] = ("Shikdik Clean", "Shikdik Clean", "Shikdik Clean"),
+        ["NavTitle"] = ("SHX Clean", "SHX Clean", "SHX Clean"),
         ["NavClean"] = ("🧹 Очистка системы", "🧹 System Cleanup", "🧹 Sistem Temizliği"),
         ["NavPrograms"] = ("🗑️ Удаление программ", "🗑️ Uninstall Programs", "🗑️ Program Kaldır"),
         ["NavPhotos"] = ("🖼️ Управление фото", "🖼️ Photo Manager", "🖼️ Fotoğraf Yönetimi"),
@@ -129,15 +129,32 @@ public static class Loc
 
         // ---- О программе ----
         ["AboutHeader"] = ("О программе", "About", "Hakkında"),
-        ["AppName"] = ("Shikdik Clean", "Shikdik Clean", "Shikdik Clean"),
+        ["AppName"] = ("SHX Clean", "SHX Clean", "SHX Clean"),
         ["AppVersion"] = ("Версия: 1.0.0", "Version: 1.0.0", "Sürüm: 1.0.0"),
         ["AppDescription"] = ("Программа для очистки вашего компьютера от временных файлов и ненужных программ.",
                               "An application to clean your computer from temporary files and unwanted programs.",
                               "Bilgisayarınızı geçici dosyalardan ve gereksiz programlardan temizleyen uygulama."),
-        ["GitHubLink"] = ("🔗 GitHub: github.com/shikdik/clean", "🔗 GitHub: github.com/shikdik/clean", "🔗 GitHub: github.com/shikdik/clean"),
+        ["GitHubLink"] = ("🔗 GitHub: github.com/shx/clean", "🔗 GitHub: github.com/shx/clean", "🔗 GitHub: github.com/shx/clean"),
         ["CheckUpdates"] = ("Проверить обновления", "Check for updates", "Güncellemeleri kontrol et"),
-        ["Copyright"] = ("© 2026 Shikdik. Все права защищены.", "© 2026 Shikdik. All rights reserved.", "© 2026 Shikdik. Tüm hakları saklıdır."),
+        ["Copyright"] = ("© 2026 SHX. Все права защищены.", "© 2026 SHX. All rights reserved.", "© 2026 SHX. Tüm hakları saklıdır."),
         ["NoUpdates"] = ("У вас установлена последняя версия (1.0.0).", "You have the latest version (1.0.0).", "En son sürüme sahipsiniz (1.0.0)."),
+
+        // ---- Новые фичи: карточки статистики, предпросмотр программ ----
+        ["StatTotalJunk"] = ("Всего мусора", "Total junk", "Toplam çöp"),
+        ["StatFilesFound"] = ("Найдено файлов", "Files found", "Dosya bulundu"),
+        ["StatCategories"] = ("Категорий", "Categories", "Kategori"),
+        ["StatFreed"] = ("Освобождено", "Freed", "Boşaltıldı"),
+        ["ProgramPreview"] = ("Программа", "Program", "Program"),
+        ["PublisherLabel"] = ("Издатель: {0}", "Publisher: {0}", "Yayıncı: {0}"),
+        ["VersionLabel"] = ("Версия: {0}", "Version: {0}", "Sürüm: {0}"),
+        ["InstallDateLabel"] = ("Установлена: {0}", "Installed: {0}", "Kurulum: {0}"),
+        ["SizeLabel"] = ("Размер: {0}", "Size: {0}", "Boyut: {0}"),
+        ["UninstallCommand"] = ("Команда удаления:", "Uninstall command:", "Kaldırma komutu:"),
+        ["ProgramHint"] = ("Выберите программу в списке, чтобы увидеть подробности и значок.",
+                           "Select a program in the list to see details and its icon.",
+                           "Ayrıntıları ve simgesini görmek için listeden bir program seçin."),
+        ["SilentUninstall"] = ("Тихое удаление доступно", "Silent uninstall available", "Sessiz kaldırma mevcut"),
+        ["NoIcon"] = ("Значок не найден", "No icon found", "Simge bulunamadı"),
 
         // Общие диалоги
         ["Question"] = ("Вопрос", "Question", "Soru"),

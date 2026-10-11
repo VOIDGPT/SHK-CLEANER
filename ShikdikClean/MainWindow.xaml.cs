@@ -7,10 +7,10 @@ using System.Windows.Documents; // Hyperlink (ссылка на GitHub на ст
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using ShikdikClean.Helpers;
-using ShikdikClean.Models;
+using ShxClean.Helpers;
+using ShxClean.Models;
 
-namespace ShikdikClean;
+namespace ShxClean;
 
 /// <summary>
 /// Логика главного окна: переключение разделов и все обработчики событий.
@@ -833,7 +833,7 @@ public partial class MainWindow : Window
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "https://github.com/shikdik/clean",
+                FileName = "https://github.com/shx/clean",
                 UseShellExecute = true,
             });
         }

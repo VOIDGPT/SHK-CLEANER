@@ -2,9 +2,9 @@ using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Media; // нужен для типа Color (цвета тем)
-using ShikdikClean.Models;
+using ShxClean.Models;
 
-namespace ShikdikClean.Helpers;
+namespace ShxClean.Helpers;
 
 /// <summary>
 /// Класс для сохранения/загрузки настроек в файл appsettings.json,
@@ -68,7 +68,7 @@ public static class SettingsManager
         {
             string путьЯрлыка = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Startup),
-                "Shikdik Clean.lnk");
+                "SHX Clean.lnk");
 
             if (включать)
             {
@@ -80,7 +80,7 @@ public static class SettingsManager
                 dynamic ярлык = shell.CreateShortcut(путьЯрлыка);
                 ярлык.TargetPath = Environment.ProcessPath;   // наша программа
                 ярлык.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                ярлык.Description = "Shikdik Clean - очистка компьютера";
+                ярлык.Description = "SHX Clean - очистка компьютера";
                 ярлык.Save();
 
                 // Освобождаем COM-объекты (важно для корректной работы!)

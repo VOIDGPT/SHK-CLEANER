@@ -1,7 +1,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace ShikdikClean.Helpers;
+namespace ShxClean.Helpers;
 
 /// <summary>
 /// Класс для очистки системы от временных файлов и мусора.

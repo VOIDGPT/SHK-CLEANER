@@ -1,7 +1,7 @@
 using System.IO;
 using System.Windows.Media.Imaging;
 
-namespace ShikdikClean.Models;
+namespace ShxClean.Models;
 
 /// <summary>
 /// Модель данных "Фотография".

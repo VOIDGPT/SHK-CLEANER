@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace ShikdikClean.Models;
+namespace ShxClean.Models;
 
 /// <summary>
 /// Модель данных "Установленная программа".
@@ -69,6 +69,35 @@ public class ProgramInfo : BaseModel
         get => _возможноТихоеУдаление;
         set => Заполнить(ref _возможноТихоеУдаление, value);
     }
+
+    // ---------- ИКОНКА ПРОГРАММЫ ----------
+    private System.Windows.Media.ImageSource? _иконка;
+
+    /// <summary>Путь к файлу, из которого можно извлечь иконку (DisplayIcon из реестра).</summary>
+    public string? ПутьКИконкеФайла { get; set; }
+
+    /// <summary>Индекс иконки внутри файла (у exe может быть несколько иконок).</summary>
+    public int ИндексИконки { get; set; }
+
+    /// <summary>
+    /// Готовая картинка-иконка для таблицы. Заполняется асинхронно после загрузки списка.
+    /// Если null - в таблице показываем красивую заглушку по первой букве названия.
+    /// </summary>
+    public System.Windows.Media.ImageSource? Иконка
+    {
+        get => _иконка;
+        set
+        {
+            Заполнить(ref _иконка, value);
+            OnPropertyChanged(nameof(ЕстьИконка));
+        }
+    }
+
+    /// <summary>Есть ли реальная иконка (управляет видимостью заглушки).</summary>
+    public bool ЕстьИконка => Иконка is not null;
+
+    /// <summary>Первая буква названия - для красивой цветной заглушки.</summary>
+    public string ПерваяБуква => Имя.Length > 0 ? Имя[..1].ToUpperInvariant() : "?";
 
     /// <summary>Дата установки в удобном виде для таблицы ("неизвестно", если даты нет).</summary>
     public string ДатаУстановкиСтрока =>

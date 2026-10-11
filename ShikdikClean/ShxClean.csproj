@@ -12,12 +12,20 @@
     <!-- Манифест с требованием прав администратора -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Информация о сборке (версия отображается на странице "О программе") -->
-    <AssemblyName>Shikdik Clean</AssemblyName>
-    <RootNamespace>ShikdikClean</RootNamespace>
+    <AssemblyName>SHX Clean</AssemblyName>
+    <RootNamespace>ShxClean</RootNamespace>
     <Version>1.0.0</Version>
-    <Authors>Shikdik</Authors>
-    <Product>Shikdik Clean</Product>
-  </PropertyGroup>
+    <Authors>SHX</Authors>
+    <Product>SHX Clean</Product>
+    </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Иконка самого .exe файла в проводнике Windows -->
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <!-- Картинки логотипа, используемые внутри интерфейса (Resource = вшита в exe) -->
+    <Resource Include="Resources\appicon_256.png" />
+    <Resource Include="Resources\appicon_48.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Microsoft.VisualBasic (нужен для FileSystem.DeleteFile -> удаление в Корзину)
