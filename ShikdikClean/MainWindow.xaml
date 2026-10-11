@@ -18,12 +18,15 @@
         <Border Grid.Column="0" Background="{DynamicResource ФонПанелиБраш}">
             <DockPanel>
 
-                <!-- Логотип сверху: PNG-иконка приложения (замените файл Resources/appicon_256.png на свою!) -->
+                <!-- Логотип сверху: PNG-иконка приложения.
+                     Картинка загружается КОДОМ из Resources (см. MainWindow.xaml.cs):
+                     чтобы заменить логотип - перезапишите файл Resources/appicon_256.png
+                     своей картинкой (PNG, квадратная, 256x256 или больше) и пересоберите. -->
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="18,22,18,18">
                     <Border Background="{DynamicResource ФонКарточкиБраш}" CornerRadius="10"
                             BorderBrush="{DynamicResource ГраницаБраш}" BorderThickness="1"
                             Width="42" Height="42">
-                        <Image Source="/Resources/appicon_48.png" Width="34" Height="34"
+                        <Image x:Name="ЛоготипКартинка" Width="34" Height="34"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
@@ -415,9 +418,9 @@
                             <TextBlock DockPanel.Dock="Top" Tag="PreviewTitle" Text="Предпросмотр" FontWeight="Bold" Margin="0,0,0,10"/>
                             <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
                                 <TextBlock x:Name="ПредпросмотрФайл" Tag="FileName" TextWrapping="Wrap" FontSize="12"/>
-                                <TextBlock x:Name="ПредпросмотрРазмер" Tag="FileSize" FontSize="12" Margin="0,3,0,0"/>
+                                <TextBlock x:Name="ФотоПредпросмотрРазмер" Tag="FileSize" FontSize="12" Margin="0,3,0,0"/>
                                 <TextBlock x:Name="ПредпросмотрРазрешение" Tag="FileResolution" FontSize="12" Margin="0,3,0,0"/>
-                                <TextBlock x:Name="ПредпросмотрДата" Tag="FileDate" FontSize="12" Margin="0,3,0,0"/>
+                                <TextBlock x:Name="ФотоПредпросмотрДата" Tag="FileDate" FontSize="12" Margin="0,3,0,0"/>
                                 <TextBlock x:Name="ПредпросмотрПапка" Tag="FolderPath" TextWrapping="Wrap" FontSize="11" Margin="0,3,0,0"
                                            Foreground="{DynamicResource ТекстВторичныйБраш}"/>
                             </StackPanel>

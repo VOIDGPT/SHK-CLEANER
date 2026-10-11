@@ -19,10 +19,14 @@
     <Product>SHX Clean</Product>
     </PropertyGroup>
 
-  <ItemGroup>
-    <!-- Иконка самого .exe файла в проводнике Windows -->
+  <!-- Иконка самого .exe файла в проводнике Windows (это свойство, НЕ элемент ItemGroup) -->
+  <PropertyGroup>
     <ApplicationIcon>app.ico</ApplicationIcon>
-    <!-- Картинки логотипа, используемые внутри интерфейса (Resource = вшита в exe) -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Картинки логотипа, используемые внутри интерфейса (Resource = вшита в exe).
+         Замените appicon_256.png на свою картинку (PNG, 256x256), чтобы сменить логотип. -->
     <Resource Include="Resources\appicon_256.png" />
     <Resource Include="Resources\appicon_48.png" />
   </ItemGroup>

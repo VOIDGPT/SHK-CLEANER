@@ -44,6 +44,42 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        // ---------- ЛОГОТИП ПРИЛОЖЕНИЯ (PNG из ресурсов) ----------
+        // Ищем картинку в папке Resources по алфавиту и берём самую большую.
+        // Такой способ не падает, если PNG-файл повреждён или заменён на
+        // некорректный ("ошибка изменения семейства источников" больше нет).
+        try
+        {
+            var сборка = System.Reflection.Assembly.GetExecutingAssembly();
+            string? лучшийРесурс = null;
+            long лучшийРазмер = -1;
+            foreach (string имя in сборка.GetManifestResourceNames())
+            {
+                // Внутренние имена ресурсов выглядят так: ShxClean.Resources.appicon_256.png
+                if (!имя.Contains(".Resources.") || !имя.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) continue;
+                using var тестовыйПоток = сборка.GetManifestResourceStream(имя);
+                if (тестовыйПоток is null) continue;
+                if (тестовыйПоток.Length > лучшийРазмер) { лучшийРазмер = тестовыйПоток.Length; лучшийРесурс = имя; }
+            }
+            if (лучшийРесурс is not null)
+            {
+                using var поток = сборка.GetManifestResourceStream(лучшийРесурс)!;
+                var битмап = new BitmapImage();
+                битмап.BeginInit();
+                битмап.CacheOption = BitmapCacheOption.OnLoad; // прочитать сразу, файл/поток можно закрыть
+                битмап.StreamSource = поток;
+                битмап.EndInit();
+                битмап.Freeze();
+                ЛоготипКартинка.Source = битмап; // картинка в сайдбаре слева сверху
+                Icon = битмап;                   // иконка самого окна (заголовок, панель задач, Alt+Tab)
+            }
+        }
+        catch (Exception ex)
+        {
+            // Логотип - украшение: если его не удалось загрузить, интерфейс работает дальше
+            System.Diagnostics.Debug.WriteLine($"Логотип не загружен: {ex.Message}");
+        }
+
         // Строим список категорий очистки (чекбоксы генерируются из коллекции)
         foreach (string код in new[] { "TempUser", "TempSystem", "Prefetch", "ShaderCache", "RecycleBin", "Browsers", "Downloads" })
         {
@@ -464,6 +500,13 @@ public partial class MainWindow : Window
             _всеПрограммы = await _деинсталлятор.ПолучитьПрограммыAsync();
             ПрименитьФильтрПрограмм();
             ТекстСтатусПрограмм.Text = string.Format(Loc.Get("ProgramsLoaded"), _всеПрограммы.Count);
+
+            // ---------- ЗАГРУЗКА ИКОНОК ПРОГРАММ ----------
+            // Иконки извлекаем НЕ сразу для всех программ (это было бы медленно):
+            // запускаем фоновую задачу, которая подгружает их по одной после
+            // отрисовки строки таблицы. DataGrid сам скажет модели "покажи иконку"
+            // через привязку {Binding Иконка} - как только поле обновится.
+            _ = ЗагрузкаИконокПрограммAsync(_всеПрограммы.ToList());
         }
         catch (Exception ex)
         {
@@ -482,6 +525,97 @@ public partial class MainWindow : Window
         string текст = ПоискПрограмм.Text;
         if (текст == Loc.Get("SearchPlaceholder")) текст = "";
         ПрименитьФильтрПрограмм(текст);
+    }
+
+    /// <summary>
+    /// Фоновая загрузка иконок программ по одной.
+    /// DispatcherPriority.Background = "сделай это после отрисовки кадра",
+    /// поэтому таблица прокручивается плавно, а значки появляются постепенно.
+    /// </summary>
+    private async Task ЗагрузкаИконокПрограммAsync(List<ProgramInfo> программы)
+    {
+        foreach (var программа in программы)
+        {
+            // Пропускаем программы, для которых путь к файлу-иконке не найден
+            if (программа.ПутьКИконкеФайла is null) continue;
+
+            // Ждём "свободного момента" между отрисовками кадров интерфейса
+            await Dispatcher.InvokeAsync(() =>
+            {
+                try
+                {
+                    // IconCache отдаёт готовую замороженную картинку 32x32 (или из памяти)
+                    программа.Иконка = IconCache.Получить(программа.ПутьКИконкеФайла!, программа.ИндексИконки, 32);
+                }
+                catch (Exception ex)
+                {
+                    // Иконка - украшение: любая ошибка тихо пропускается,
+                    // в таблице останется красивая заглушка с первой буквой названия
+                    System.Diagnostics.Debug.WriteLine($"Иконка «{программа.Имя}»: {ex.Message}");
+                }
+            }, DispatcherPriority.Background);
+        }
+    }
+
+    /// <summary>Клик по строке таблицы: заполняем панель предпросмотра справа.</summary>
+    private void ТаблицаПрограмм_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        try
+        {
+            if (ТаблицаПрограмм.SelectedItem is not ProgramInfo программа) return;
+
+            // Запоминаем ключи локализации, чтобы при смене языка подписи обновились
+            ПредпросмотрИздатель.Tag = "PublisherLabel";
+            ПредпросмотрВерсия.Tag = "VersionLabel";
+            ПредпросмотрДата.Tag = "InstallDateLabel";
+            ПредпросмотрРазмер.Tag = "SizeLabel";
+
+            // Иконка крупно (64 пикселя). Если её ещё нет в модели - берём из кэша напрямую.
+            var большая = программа.Иконка ??
+                (программа.ПутьКИконкеФайла is not null
+                    ? IconCache.Получить(программа.ПутьКИконкеФайла, программа.ИндексИконки, 64)
+                    : null);
+            if (большая is not null)
+            {
+                ПредпросмотрИконка.Source = большая;
+                ПредпросмотрИконка.Visibility = Visibility.Visible;
+                ЗаглушкаИконкиПрограммы.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                // Настоящей иконки нет - показываем цветную заглушку с первой буквой
+                ПредпросмотрИконка.Source = null;
+                ПредпросмотрИконка.Visibility = Visibility.Collapsed;
+                ЗаглушкаИконкиПрограммы.Visibility = Visibility.Visible;
+                ЗаглушкаИконкиБуква.Text = программа.ПерваяБуква;
+            }
+
+            // Подписи с данными программы
+            ПредпросмотрИмя.Text = программа.Имя;
+            ПредпросмотрИздатель.Text = string.Format(Loc.Get("PublisherLabel"), программа.Издатель);
+            ПредпросмотрВерсия.Text = string.Format(Loc.Get("VersionLabel"), программа.Версия);
+            // Внимание: эти TextBlock'ы относятся к разделу ФОТО (в XAML они названы так же),
+            // поэтому для программы используем другие поля панели предпросмотра.
+            ПредпросмотрИнфоПрограммы.Text =
+                $"{Loc.Get("PublisherLabel")}: {программа.ИздателЬБезПробелаЕслиПусто}\n" +
+                $"{Loc.Get("VersionLabel")}: {программа.Версия}\n" +
+                $"{Loc.Get("InstallDateLabel")}: {программа.ДатаУстановкиСтрока}\n" +
+                $"{Loc.Get("SizeLabel")}: {программа.РазмерЧеловек}";
+
+            // Команда удаления из реестра (UninstallString)
+            ПредпросмотрКоманда.Text = программа.СтрокаУдаления;
+
+            // Зелёный чип, если деинсталлятор поддерживает тихий режим
+            ЧипТихоеУдаление.Visibility = программа.ВозможноТихоеУдаление
+                ? Visibility.Visible : Visibility.Collapsed;
+
+            // Подсказка под карточкой больше не нужна - прячем её
+            ПредпросмотрПодсказкаПрограмм.Visibility = Visibility.Collapsed;
+        }
+        catch (Exception ex)
+        {
+            ПоказатьОшибку(ex);
+        }
     }
 
     private void ПрименитьФильтрПрограмм(string фильтр = "")
@@ -554,7 +688,11 @@ public partial class MainWindow : Window
                     {
                         // Разрешение читается быстро: DelayCreation декодирует только заголовок файла
                         PhotoManager.ЗаполнитьИнформациюОРазмере(ф);
-                        ф.Миниатюра = PhotoManager.СоздатьМиниатюру(ф.ПутьКФайлу);
+                        var миниатюра = PhotoManager.СоздатьМиниатюру(ф.ПутьКФайлу);
+                        // Показываем миниатюру только если файл ещё в текущем списке
+                        // (пользователь мог нажать "Обновить" или сменить папку)
+                        if (СеткаФото.ItemsSource is System.Collections.IEnumerable список && список.Contains(ф))
+                            ф.Миниатюра = миниатюра;
                     }
                     catch (Exception ex)
                     {
